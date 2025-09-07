@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBFWkamflwlXyiX8WXS8lf3hwri4y5Cmqw",
@@ -14,7 +14,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// Admin panel
+// ----------------- Admin panel -----------------
 const form = document.getElementById("product-form");
 if(form){
   form.addEventListener("submit", async (e)=>{
@@ -35,17 +35,52 @@ async function renderProductsAdmin(){
   if(!container) return;
   container.innerHTML="";
   const querySnapshot = await getDocs(collection(db,"products"));
-  querySnapshot.forEach(doc=>{
-    const p = doc.data();
+  querySnapshot.forEach(docSnap=>{
+    const p = docSnap.data();
+    const div = document.createElement("div");
+    div.style.marginBottom="10px";
+
     const img = document.createElement("img");
     img.src = p.img;
     img.alt = p.name;
-    container.appendChild(img);
+    img.style.width="100px";
+
+    const name = document.createElement("span");
+    name.textContent = p.name + " ";
+
+    // Silme butonu
+    const delBtn = document.createElement("button");
+    delBtn.textContent = "Sil";
+    delBtn.addEventListener("click", async ()=>{
+      await deleteDoc(doc(db,"products",docSnap.id));
+      renderProductsAdmin();
+    });
+
+    // Güncelleme butonu
+    const editBtn = document.createElement("button");
+    editBtn.textContent = "Güncelle";
+    editBtn.addEventListener("click", async ()=>{
+      const newName = prompt("Yeni ürün adı:", p.name) || p.name;
+      const newImg = prompt("Yeni resim linki:", p.img) || p.img;
+      const newLink = prompt("Yeni ürün linki:", p.link) || p.link;
+      await updateDoc(doc(db,"products",docSnap.id),{
+        name:newName,
+        img:newImg,
+        link:newLink
+      });
+      renderProductsAdmin();
+    });
+
+    div.appendChild(img);
+    div.appendChild(name);
+    div.appendChild(delBtn);
+    div.appendChild(editBtn);
+    container.appendChild(div);
   });
 }
 renderProductsAdmin();
 
-// Guest panel
+// ----------------- Guest panel -----------------
 async function renderProductsGuest(){
   const container = document.getElementById("product-list");
   if(!container) return;
@@ -59,13 +94,14 @@ async function renderProductsGuest(){
     const img = document.createElement("img");
     img.src = p.img;
     img.alt = p.name;
+    img.style.width="150px";
     a.appendChild(img);
     container.appendChild(a);
   });
 }
 renderProductsGuest();
 
-// Saat
+// ----------------- Saat -----------------
 function updateClock() {
   const now = new Date();
   const hours = String(now.getHours()).padStart(2,'0');
@@ -76,7 +112,7 @@ function updateClock() {
 setInterval(updateClock,1000);
 updateClock();
 
-// Scroll animasyon
+// ----------------- Scroll animasyon -----------------
 const scrollItems = document.querySelectorAll('.scroll-item');
 window.addEventListener('scroll', () => {
   const windowHeight = window.innerHeight;
@@ -91,9 +127,21 @@ window.addEventListener('scroll', () => {
   });
 });
 
-// Video ses açma
+// ----------------- Video ses açma -----------------
 const video = document.getElementById('bg-video');
 if(video){
   video.muted = true; 
   video.play().catch(()=>{});
+
+  // Ses butonu oluştur
+  const soundBtn = document.createElement('button');
+  soundBtn.textContent = "Ses Aç";
+  soundBtn.id = "sound-btn";
+  document.body.appendChild(soundBtn);
+
+  soundBtn.addEventListener('click', () => {
+    video.muted = false;
+    video.play();
+    soundBtn.style.display = 'none';
+  });
 }

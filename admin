@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="panel active">
+  <h1 class="neon-text">ADMIN PANEL</h1>
+  <input type="text" id="prodName" placeholder="Ürün Adı" class="admin-input">
+  <input type="text" id="prodImg" placeholder="Ürün Görsel URL" class="admin-input">
+  <input type="text" id="prodLink" placeholder="Trendyol Linki" class="admin-input"><br>
+  <button onclick="addProduct()">Ürünü Ekle</button>
+  <div id="output" class="neon-text"></div>
+  <div class="products-container" id="adminProducts"></div>
+</div>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>

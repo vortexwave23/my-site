@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Giriş</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="login-container active">
+  <h1 class="neon-text">GİRİŞ EKRANI</h1>
+  <input type="password" id="password" placeholder="Şifre"><br>
+  <button onclick="login()">Admin Giriş</button>
+  <button onclick="window.location.href='guest.html'">Guest Olarak Gir</button>
+</div>
+
+<script>
+function login(){
+    const password = document.getElementById('password').value;
+    if(password === "1234"){ window.location.href = "admin.html"; }
+    else alert("Yanlış şifre!");
+}
+</script>
+</body>
+</html>

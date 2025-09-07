@@ -81,24 +81,8 @@ async function renderProductsAdmin(){
 renderProductsAdmin();
 
 // ----------------- Guest panel -----------------
-async function renderProductsGuest(){
-  const container = document.getElementById("product-list");
-  if(!container) return;
-  container.innerHTML="";
-  const querySnapshot = await getDocs(collection(db,"products"));
-  querySnapshot.forEach(doc=>{
-    const p = doc.data();
-    const a = document.createElement("a");
-    a.href = p.link;
-    a.target="_blank";
-    const img = document.createElement("img");
-    img.src = p.img;
-    img.alt = p.name;
-    img.style.width="150px";
-    a.appendChild(img);
-    container.appendChild(a);
-  });
-}
+// renderProductsGuest(); 
+// artık sayfa açılır açılmaz çalışacak
 renderProductsGuest();
 
 // ----------------- Saat -----------------

@@ -3,24 +3,31 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Giriş</title>
+<title>Elif Kübra Hazretleri</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="login-container active">
-  <h1 class="neon-text">GİRİŞ EKRANI</h1>
-  <input type="password" id="password" placeholder="Şifre"><br>
-  <button onclick="login()">Admin Giriş</button>
-  <button onclick="window.location.href='guest.html'">Guest Olarak Gir</button>
+
+<video autoplay muted loop id="bg-video" playsinline>
+  <source src="video.mp4" type="video/mp4">
+</video>
+
+<nav>
+  <ul>
+    <li><a href="admin.html">Admin Panel</a></li>
+    <li><a href="guest.html">Guest Panel</a></li>
+  </ul>
+</nav>
+
+<div class="content">
+  <h1 class="scroll-item" id="name">Elif Kübra Hazretleri</h1>
+  <p class="scroll-item" id="location">İstanbul</p>
+  <p class="scroll-item" id="job">Siber Güvenlik</p>
 </div>
 
-<script>
-function login(){
-    const password = document.getElementById('password').value;
-    if(password === "1234"){ window.location.href = "admin.html"; }
-    else alert("Yanlış şifre!");
-}
-</script>
+<div class="clock" id="clock"></div>
+
+<script src="app.js" type="module"></script>
 </body>
 </html>

@@ -8,15 +8,8 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="guest active">
-  <h1 class="neon-text">Ürünler</h1>
-  <div class="products-container" id="guestProducts"></div>
-</div>
-
-<script>
-history.pushState(null,null,location.href);
-window.onpopstate = function(){history.go(1);}
-</script>
+<h1>Guest Panel</h1>
+<div id="product-list"></div>
 
 <script type="module" src="app.js"></script>
 </body>

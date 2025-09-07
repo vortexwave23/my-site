@@ -8,15 +8,16 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="panel active">
-  <h1 class="neon-text">ADMIN PANEL</h1>
-  <input type="text" id="prodName" placeholder="Ürün Adı" class="admin-input">
-  <input type="text" id="prodImg" placeholder="Ürün Görsel URL" class="admin-input">
-  <input type="text" id="prodLink" placeholder="Trendyol Linki" class="admin-input"><br>
-  <button onclick="addProduct()">Ürünü Ekle</button>
-  <div id="output" class="neon-text"></div>
-  <div class="products-container" id="adminProducts"></div>
-</div>
+<h1>Admin Paneli</h1>
+
+<form id="product-form">
+  <input type="text" id="prod-name" placeholder="Ürün Adı" required>
+  <input type="text" id="prod-img" placeholder="Resim Linki" required>
+  <input type="text" id="prod-link" placeholder="Ürün Linki" required>
+  <button type="submit">Ürün Ekle</button>
+</form>
+
+<div id="product-list-admin"></div>
 
 <script type="module" src="app.js"></script>
 </body>

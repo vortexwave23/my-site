@@ -1,79 +1,99 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
 const firebaseConfig = {
-    apiKey: "AIzaSyABzhhrdmXeJSCPj-lqNOKwizL3-qxRBnw",
-    authDomain: "vortex-69398.firebaseapp.com",
-    projectId: "vortex-69398",
-    storageBucket: "vortex-69398.appspot.com",
-    messagingSenderId: "526864135908",
-    appId: "1:526864135908:web:48d4029a83b417f5395ef"
+  apiKey: "AIzaSyBFWkamflwlXyiX8WXS8lf3hwri4y5Cmqw",
+  authDomain: "data-85f1e.firebaseapp.com",
+  projectId: "data-85f1e",
+  storageBucket: "data-85f1e.firebasestorage.app",
+  messagingSenderId: "258131108684",
+  appId: "1:258131108684:web:2b0c148b1610594d6da5e9",
+  measurementId: "G-N9D14VVN4R"
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// Ürün ekleme
-window.addProduct = async function() {
-    const name = document.getElementById("prodName")?.value.trim();
-    const img = document.getElementById("prodImg")?.value.trim();
-    const link = document.getElementById("prodLink")?.value.trim();
-    if(!name || !img || !link){ alert("Tüm alanları doldur!"); return; }
-    const colRef = collection(db,"products");
-    const snapshot = await getDocs(colRef);
-    if(snapshot.size >= 10){ alert("Maksimum 10 ürün!"); return; }
-    await addDoc(colRef,{name,img,link});
-    document.getElementById("prodName").value="";
-    document.getElementById("prodImg").value="";
-    document.getElementById("prodLink").value="";
-    document.getElementById("output").textContent = `"${name}" eklendi!`;
+// Admin panel
+const form = document.getElementById("product-form");
+if(form){
+  form.addEventListener("submit", async (e)=>{
+    e.preventDefault();
+    const name = document.getElementById("prod-name").value;
+    const img = document.getElementById("prod-img").value;
+    const link = document.getElementById("prod-link").value;
+
+    await addDoc(collection(db,"products"),{name,img,link});
+    alert("Ürün eklendi!");
+    form.reset();
+    renderProductsAdmin();
+  });
 }
 
-// Admin ürünleri
-async function renderAdminProducts(){
-    const container = document.getElementById("adminProducts");
-    if(!container) return;
-    const colRef = collection(db,"products");
-    onSnapshot(colRef,(snapshot)=>{
-        container.innerHTML="";
-        snapshot.forEach(docSnap=>{
-            const p = docSnap.data();
-            container.innerHTML += `
-            <div class="product">
-                <img src="${p.img}" alt="${p.name}">
-                <h3 class="neon-text">${p.name}</h3>
-                <a href="${p.link}" target="_blank" class="button">Satın Al</a>
-                <button onclick="deleteProduct('${docSnap.id}')" style="margin-top:5px;background:#e74c3c;">Sil</button>
-            </div>`;
-        });
-    });
+async function renderProductsAdmin(){
+  const container = document.getElementById("product-list-admin");
+  if(!container) return;
+  container.innerHTML="";
+  const querySnapshot = await getDocs(collection(db,"products"));
+  querySnapshot.forEach(doc=>{
+    const p = doc.data();
+    const img = document.createElement("img");
+    img.src = p.img;
+    img.alt = p.name;
+    container.appendChild(img);
+  });
 }
+renderProductsAdmin();
 
-// Guest ürünleri
-async function renderGuestProducts(){
-    const container = document.getElementById("guestProducts");
-    if(!container) return;
-    const colRef = collection(db,"products");
-    onSnapshot(colRef,(snapshot)=>{
-        container.innerHTML="";
-        snapshot.forEach(docSnap=>{
-            const p = docSnap.data();
-            container.innerHTML += `
-            <div class="product">
-                <a href="${p.link}" target="_blank">
-                    <img src="${p.img}" alt="${p.name}">
-                </a>
-                <h3 class="neon-text">${p.name}</h3>
-                <a href="${p.link}" target="_blank" class="button">Satın Al</a>
-            </div>`;
-        });
-    });
+// Guest panel
+async function renderProductsGuest(){
+  const container = document.getElementById("product-list");
+  if(!container) return;
+  container.innerHTML="";
+  const querySnapshot = await getDocs(collection(db,"products"));
+  querySnapshot.forEach(doc=>{
+    const p = doc.data();
+    const a = document.createElement("a");
+    a.href = p.link;
+    a.target="_blank";
+    const img = document.createElement("img");
+    img.src = p.img;
+    img.alt = p.name;
+    a.appendChild(img);
+    container.appendChild(a);
+  });
 }
+renderProductsGuest();
 
-window.deleteProduct = async function(id){
-    const docRef = doc(db,"products",id);
-    await deleteDoc(docRef);
+// Saat
+function updateClock() {
+  const now = new Date();
+  const hours = String(now.getHours()).padStart(2,'0');
+  const minutes = String(now.getMinutes()).padStart(2,'0');
+  const clock = document.getElementById("clock");
+  if(clock) clock.textContent = `${hours}:${minutes}`;
 }
+setInterval(updateClock,1000);
+updateClock();
 
-renderAdminProducts();
-renderGuestProducts();
+// Scroll animasyon
+const scrollItems = document.querySelectorAll('.scroll-item');
+window.addEventListener('scroll', () => {
+  const windowHeight = window.innerHeight;
+  scrollItems.forEach((item, index) => {
+    const rect = item.getBoundingClientRect();
+    if(rect.top < windowHeight * 0.8 && rect.bottom > 0){
+      item.classList.add('visible');
+      item.style.transitionDelay = `${index*0.2}s`;
+    } else {
+      item.classList.remove('visible');
+    }
+  });
+});
+
+// Video ses açma
+const video = document.getElementById('bg-video');
+if(video){
+  video.muted = true; 
+  video.play().catch(()=>{});
+}

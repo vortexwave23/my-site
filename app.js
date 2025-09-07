@@ -81,8 +81,7 @@ async function renderProductsAdmin(){
 renderProductsAdmin();
 
 // ----------------- Guest panel -----------------
-// renderProductsGuest(); 
-// artık sayfa açılır açılmaz çalışacak
+
 renderProductsGuest();
 
 // ----------------- Saat -----------------

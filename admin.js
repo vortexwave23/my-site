@@ -14,22 +14,26 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// Şifre kontrol
+// Sabit admin bilgileri
+const ADMIN_USER = "admin";   // kullanıcı adı
+const ADMIN_PASS = "1234";    // şifre
+
+// Giriş alanı
 const loginForm = document.getElementById("login-form");
 const loginArea = document.getElementById("login-area");
 const adminArea = document.getElementById("admin-area");
 
-const ADMIN_PASSWORD = "1234"; // burayı istediğin gibi değiştir
-
 loginForm.addEventListener("submit", (e)=>{
   e.preventDefault();
+  const user = document.getElementById("username").value;
   const pass = document.getElementById("password").value;
-  if(pass === ADMIN_PASSWORD){
+
+  if(user === ADMIN_USER && pass === ADMIN_PASS){
     loginArea.style.display="none";
     adminArea.style.display="block";
     renderProductsAdmin();
   }else{
-    alert("Yanlış şifre!");
+    alert("Kullanıcı adı veya şifre hatalı!");
   }
 });
 

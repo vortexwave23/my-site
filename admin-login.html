@@ -1,144 +1,34 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Login</title>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap');
-
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Poppins', sans-serif;
-    }
-
-    body {
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
-      background-size: 400% 400%;
-      animation: gradientBG 15s ease infinite;
-      overflow: hidden;
-    }
-
-    @keyframes gradientBG {
-      0% {background-position: 0% 50%;}
-      50% {background-position: 100% 50%;}
-      100% {background-position: 0% 50%;}
-    }
-
-    .login-box {
-      width: 350px;
-      padding: 40px;
-      background: rgba(0, 0, 0, 0.8);
-      border-radius: 20px;
-      box-shadow: 0 0 30px rgba(128, 0, 255, 0.8);
-      text-align: center;
-      color: #fff;
-      animation: fadeIn 1.5s ease;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(-30px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .login-box h2 {
-      margin-bottom: 20px;
-      font-size: 28px;
-      color: #bb86fc;
-      text-shadow: 0 0 15px #bb86fc;
-    }
-
-    .input-box {
-      position: relative;
-      margin: 20px 0;
-    }
-
-    .input-box input {
-      width: 100%;
-      padding: 12px 15px;
-      border: none;
-      border-radius: 10px;
-      outline: none;
-      background: #222;
-      color: #fff;
-      font-size: 16px;
-      transition: 0.3s;
-      box-shadow: inset 0 0 8px rgba(187, 134, 252, 0.6);
-    }
-
-    .input-box input:focus {
-      box-shadow: 0 0 15px #bb86fc, inset 0 0 10px rgba(187, 134, 252, 0.6);
-    }
-
-    .btn {
-      width: 100%;
-      padding: 12px;
-      border: none;
-      border-radius: 10px;
-      background: linear-gradient(90deg, #7f00ff, #e100ff);
-      color: #fff;
-      font-size: 18px;
-      cursor: pointer;
-      transition: transform 0.2s, box-shadow 0.3s;
-    }
-
-    .btn:hover {
-      transform: translateY(-3px) scale(1.03);
-      box-shadow: 0 0 20px rgba(128, 0, 255, 0.9);
-    }
-
-    .glow {
-      position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: radial-gradient(circle, rgba(187,134,252,0.15) 10%, transparent 80%);
-      animation: rotate 8s linear infinite;
-      z-index: -1;
-    }
-
-    @keyframes rotate {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Girişi</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="glow"></div>
-  <div class="login-box">
-    <h2>Admin Panel Girişi</h2>
-    <form onsubmit="return login()">
-      <div class="input-box">
-        <input type="text" id="username" placeholder="Kullanıcı Adı" required>
-      </div>
-      <div class="input-box">
-        <input type="password" id="password" placeholder="Şifre" required>
-      </div>
-      <button type="submit" class="btn">Giriş Yap</button>
-    </form>
-  </div>
+<div class="login-container">
+  <h2>Admin Panel Girişi</h2>
+  <form id="admin-login-form">
+    <input type="text" id="username" placeholder="Kullanıcı Adı" required>
+    <input type="password" id="password" placeholder="Parola" required>
+    <button type="submit">Giriş Yap</button>
+  </form>
+  <div id="login-msg" style="margin-top:10px;color:#f0f;text-shadow:0 0 10px #c020ff;"></div>
+</div>
 
-  <script>
-    function login() {
-      const user = document.getElementById('username').value;
-      const pass = document.getElementById('password').value;
-      
-      if(user === "admin" && pass === "1234") {
-        alert("Giriş başarılı!");
-        window.location.href = "admin.html"; // Admin paneline yönlendir
-        return false;
-      } else {
-        alert("Kullanıcı adı veya şifre hatalı!");
-        return false;
-      }
-    }
-  </script>
+<script>
+document.getElementById('admin-login-form').addEventListener('submit', function(e){
+  e.preventDefault();
+  const user = document.getElementById('username').value;
+  const pass = document.getElementById('password').value;
+  if(user === 'admin' && pass === '1234'){ 
+    window.location.href = 'admin-panel.html';
+  } else {
+    document.getElementById('login-msg').textContent = 'Hatalı kullanıcı adı veya parola!';
+  }
+});
+</script>
 </body>
 </html>

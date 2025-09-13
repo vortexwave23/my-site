@@ -8,6 +8,8 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<!-- Hareketli arka plan -->
+<div id="bg-animation"></div>
 
 <nav>
   <ul>
@@ -15,7 +17,9 @@
   </ul>
 </nav>
 
-<div id="bg-animation"></div>
+<div class="content">
+  <h1 class="scroll-item" id="name">VORTEX</h1>
+</div>
 
 <section id="products-section">
   <h2>Ürünlerimiz</h2>
@@ -25,25 +29,5 @@
 <div class="clock" id="clock"></div>
 
 <script type="module" src="app.js"></script>
-<script>
-const bg = document.getElementById('bg-animation');
-bg.style.position = 'fixed';
-bg.style.top = 0;
-bg.style.left = 0;
-bg.style.width = '100%';
-bg.style.height = '100%';
-bg.style.zIndex = '-1';
-bg.style.background = 'linear-gradient(45deg, #9b59b6, #8e44ad, #a020f0, #c020ff)';
-bg.style.backgroundSize = '400% 400%';
-bg.style.animation = 'gradientMove 15s ease infinite';
-const style = document.createElement('style');
-style.innerHTML = `
-@keyframes gradientMove {
-  0% {background-position:0% 50%}
-  50% {background-position:100% 50%}
-  100% {background-position:0% 50%}
-}`;
-document.head.appendChild(style);
-</script>
 </body>
 </html>

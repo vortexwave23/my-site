@@ -3,30 +3,40 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Girişi</title>
+<title>Admin Login</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<div id="bg-animation"></div>
+
 <div class="login-container">
-  <h2>Admin Panel Girişi</h2>
-  <form id="admin-login-form">
+  <h1>Admin Panel Girişi</h1>
+  <form id="login-form">
     <input type="text" id="username" placeholder="Kullanıcı Adı" required>
-    <input type="password" id="password" placeholder="Parola" required>
+    <input type="password" id="password" placeholder="Şifre" required>
     <button type="submit">Giriş Yap</button>
+    <p id="login-msg"></p>
   </form>
-  <div id="login-msg" style="margin-top:10px;color:#f0f;text-shadow:0 0 10px #c020ff;"></div>
 </div>
 
 <script>
-document.getElementById('admin-login-form').addEventListener('submit', function(e){
+const loginForm = document.getElementById('login-form');
+const loginMsg = document.getElementById('login-msg');
+
+// Örnek admin bilgisi
+const ADMIN_USER = "admin";
+const ADMIN_PASS = "12345";
+
+loginForm.addEventListener('submit', (e)=>{
   e.preventDefault();
   const user = document.getElementById('username').value;
   const pass = document.getElementById('password').value;
-  if(user === 'admin' && pass === '1234'){ 
-    window.location.href = 'admin-panel.html';
+  if(user === ADMIN_USER && pass === ADMIN_PASS){
+    window.location.href = "admin.html";
   } else {
-    document.getElementById('login-msg').textContent = 'Hatalı kullanıcı adı veya parola!';
+    loginMsg.textContent = "Kullanıcı adı veya şifre hatalı!";
+    loginMsg.style.color = "#ff00ff";
   }
 });
 </script>

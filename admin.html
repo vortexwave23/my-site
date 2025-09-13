@@ -1,81 +1,25 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>VORTEX — Admin Panel</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="admin-style.css">
 </head>
 <body>
+<div class="admin-container">
+<h1>Ürün Yönetimi</h1>
+<form id="product-form">
+<input type="text" id="prod-name" placeholder="Ürün Adı" required>
+<input type="text" id="prod-img" placeholder="Resim URL (3:4 Oran)" required>
+<input type="text" id="prod-link" placeholder="Trendyol Linki" required>
+<button type="submit">Ürün Ekle</button>
+</form>
+<div id="product-list-admin"></div>
+<div id="action-msg"></div>
+</div>
 
-  <div class="animated-bg"></div>
-  <video id="bg-video" autoplay muted loop playsinline style="display:none">
-    <source src="video.mp4" type="video/mp4">
-  </video>
-
-  <nav class="topnav">
-    <ul>
-      <li><a href="index.html">Anasayfa</a></li>
-      <li><a id="logout-btn" href="#">Çıkış</a></li>
-    </ul>
-  </nav>
-
-  <main class="admin-main">
-    <section class="admin-panel">
-      <h1>Admin — Ürün Yönetimi</h1>
-
-      <form id="product-form" class="admin-form" autocomplete="off">
-        <div class="form-left">
-          <div class="form-row">
-            <label>Ürün Adı</label>
-            <input id="prod-name" type="text" placeholder="Ürün adı" required />
-          </div>
-
-          <div class="form-row">
-            <label>Görsel URL</label>
-            <input id="prod-img" type="url" placeholder="https://..." required />
-          </div>
-
-          <div class="form-row">
-            <label>Satın Alma Linki</label>
-            <input id="prod-link" type="url" placeholder="https://..." />
-          </div>
-
-          <div class="form-actions">
-            <button id="add-btn" type="submit" class="btn-primary">Ürünü Ekle</button>
-            <button id="clear-form" type="button" class="btn-ghost">Temizle</button>
-          </div>
-        </div>
-
-        <aside class="preview">
-          <h3>Önizleme</h3>
-          <div id="preview-card" class="preview-card">
-            <div class="preview-img-wrap"><img id="preview-img" src="" alt="Önizleme" /></div>
-            <p id="preview-title">Ürün adı burada görünür</p>
-          </div>
-        </aside>
-      </form>
-
-      <hr />
-
-      <h2>Mevcut Ürünler</h2>
-      <div id="product-list-admin" class="product-grid admin-grid" aria-live="polite"></div>
-    </section>
-  </main>
-
-  <!-- Modal: delete/confirm -->
-  <div id="modal" class="modal" aria-hidden="true">
-    <div class="modal-card">
-      <h3 id="modal-title">Onay</h3>
-      <p id="modal-text">Emin misiniz?</p>
-      <div class="modal-actions">
-        <button id="modal-cancel" class="btn-ghost">İptal</button>
-        <button id="modal-confirm" class="btn-primary">Onayla</button>
-      </div>
-    </div>
-  </div>
-
-<script type="module" src="app.js"></script>
+<script type="module" src="admin.js"></script>
 </body>
 </html>

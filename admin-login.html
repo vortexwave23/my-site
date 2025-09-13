@@ -1,74 +1,53 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Panel Giriş</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Admin Giriş — VORTEX</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
-  <style>
-    body {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      font-family: Arial, sans-serif;
-      background: #0f0f0f;
-      color: #fff;
-      margin: 0;
-    }
-    #login-area, #admin-area {
-      background: rgba(255,255,255,0.1);
-      padding: 20px;
-      border-radius: 10px;
-      text-align: center;
-      box-shadow: 0 0 20px rgba(0,0,0,0.6);
-    }
-    input {
-      display: block;
-      margin: 10px auto;
-      padding: 10px;
-      width: 200px;
-      border: none;
-      border-radius: 5px;
-    }
-    button {
-      padding: 10px 20px;
-      border: none;
-      border-radius: 5px;
-      background: #4CAF50;
-      color: #fff;
-      cursor: pointer;
-    }
-    button:hover {
-      background: #45a049;
-    }
-    #product-list-admin img {
-      display: block;
-      margin: 10px auto;
-    }
-  </style>
 </head>
 <body>
-  <div id="login-area">
-    <h1>Admin Giriş</h1>
-    <form id="login-form">
-      <input type="text" id="username" placeholder="Kullanıcı Adı" required>
-      <input type="password" id="password" placeholder="Şifre" required>
-      <button type="submit">Giriş Yap</button>
-    </form>
-  </div>
+  <div class="auth-bg"></div>
 
-  <div id="admin-area" style="display:none;">
-    <h2>Ürün Yönetimi</h2>
-    <form id="product-form">
-      <input type="text" id="prod-name" placeholder="Ürün adı" required>
-      <input type="text" id="prod-img" placeholder="Ürün görsel URL" required>
-      <input type="text" id="prod-link" placeholder="Ürün linki" required>
-      <button type="submit">Ürün Ekle</button>
-    </form>
-    <div id="product-list-admin"></div>
-  </div>
+  <main class="login-main">
+    <div class="login-card">
+      <h1>Admin Girişi</h1>
+      <form id="login-form" class="login-form" autocomplete="off">
+        <label>Kullanıcı Adı</label>
+        <input id="login-user" type="text" placeholder="Kullanıcı adınız" required />
+        <label>Şifre</label>
+        <input id="login-pass" type="password" placeholder="Şifre" required />
+        <div class="login-actions">
+          <button type="submit" class="btn-primary">Giriş Yap</button>
+          <button type="button" id="back-home" class="btn-ghost">Anasayfa</button>
+        </div>
+        <p class="login-note">Admin bilgilerini değiştirmek için kodda `ADMIN_USER` ve `ADMIN_PASS` ayarını güncelle.</p>
+      </form>
+    </div>
+  </main>
 
-  <script type="module" src="admin.js"></script>
+<script>
+  // Basit client-side auth (sessionStorage ile)
+  const ADMIN_USER = "admin";   // değiştir
+  const ADMIN_PASS = "1234";    // değiştir
+
+  document.getElementById('login-form').addEventListener('submit', (e)=>{
+    e.preventDefault();
+    const u = document.getElementById('login-user').value.trim();
+    const p = document.getElementById('login-pass').value.trim();
+    if(u === ADMIN_USER && p === ADMIN_PASS){
+      sessionStorage.setItem('vortex_is_admin','1');
+      window.location.href = 'admin.html';
+    } else {
+      // güzel uyarı
+      const old = document.querySelector('.login-note');
+      old.textContent = 'Kullanıcı adı veya şifre hatalı.';
+      old.style.color = '#ff6b6b';
+    }
+  });
+
+  document.getElementById('back-home').addEventListener('click', ()=> location.href='index.html');
+</script>
 </body>
 </html>

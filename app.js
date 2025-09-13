@@ -1,11 +1,10 @@
-// app.js — tek dosya: index.html ve admin.html ile kullanılır
+// app.js — guest + admin shared logic
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import {
-  getFirestore, collection, addDoc, getDocs,
-  updateDoc, doc, deleteDoc, onSnapshot
+  getFirestore, collection, addDoc, getDocs, updateDoc, doc, deleteDoc
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
-/* --------- firebaseConfig (senin verdiğin) --------- */
+/* ---------- CONFIG (senin verdiğin) ---------- */
 const firebaseConfig = {
   apiKey: "AIzaSyBFWkamflwlXyiX8WXS8lf3hwri4y5Cmqw",
   authDomain: "data-85f1e.firebaseapp.com",
@@ -18,24 +17,23 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-/* ---------- COMMON UTIL ---------- */
-function $(sel){return document.querySelector(sel)}
-function $all(sel){return Array.from(document.querySelectorAll(sel))}
+/* HELPERS */
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+const escapeHtml = s => String(s||'').replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 
 /* ---------- SPARKLE CURSOR ---------- */
 (function sparkleCursor(){
   const container = document.getElementById('sparkles-container');
   if(!container) return;
   const pool = [];
-  function make(){
-    const s = document.createElement('div');
-    s.className='sparkle';
-    container.appendChild(s);
-    pool.push(s);
-    return s;
+  for(let i=0;i<12;i++){
+    const el = document.createElement('div');
+    el.className = 'sparkle';
+    container.appendChild(el);
+    pool.push(el);
   }
-  for(let i=0;i<10;i++) make();
-  let idx=0;
+  let idx = 0;
   window.addEventListener('mousemove', (e)=>{
     const s = pool[idx++ % pool.length];
     s.style.left = e.clientX + 'px';
@@ -49,48 +47,62 @@ function $all(sel){return Array.from(document.querySelectorAll(sel))}
 /* ---------- PAGINATION (guest) ---------- */
 const PAGE_SIZE = 9;
 let currentPage = 1;
-let cachedProducts = []; // tüm ürünleri tutacağız
+let cachedProducts = [];
 
 async function fetchAllProducts(){
   const snap = await getDocs(collection(db,'products'));
   const arr = [];
-  snap.forEach(d => arr.push({id:d.id, ...d.data()}));
-  // en son eklenen üstte olsun:
-  arr.sort((a,b)=> (a._ts||0) < (b._ts||0) ? 1:-1);
+  snap.forEach(d => arr.push({ id:d.id, ...d.data() }));
+  // sort by _ts if exists
+  arr.sort((a,b)=> (b._ts||0) - (a._ts||0));
   cachedProducts = arr;
   renderProductsPage(currentPage);
   updatePageInfo();
 }
+
 function totalPages(){ return Math.max(1, Math.ceil(cachedProducts.length / PAGE_SIZE)); }
 function updatePageInfo(){
   const info = $('#page-info');
   if(info) info.textContent = `${currentPage} / ${totalPages()}`;
-  $('#prev-page')?.setAttribute('disabled', currentPage<=1);
-  $('#next-page')?.setAttribute('disabled', currentPage>=totalPages());
+  const p = $('#prev-page'), n = $('#next-page');
+  if(p) p.disabled = currentPage<=1;
+  if(n) n.disabled = currentPage>=totalPages();
 }
+
 function renderProductsPage(page){
   const container = $('#product-list');
   if(!container) return;
   container.innerHTML = '';
   const start = (page-1)*PAGE_SIZE;
-  const pageItems = cachedProducts.slice(start, start+PAGE_SIZE);
-  pageItems.forEach(p => {
+  const items = cachedProducts.slice(start, start+PAGE_SIZE);
+  items.forEach(p=>{
     const a = document.createElement('a');
     a.href = p.link || '#';
     a.target = '_blank';
     const card = document.createElement('div');
     card.className = 'product-card';
     card.innerHTML = `<div class="neon-border"></div>
-      <img src="${p.img}" alt="${escapeHtml(p.name)}" onerror="this.src='https://via.placeholder.com/300x200?text=No+Image'">
+      <div class="img-wrap"><img src="${escapeHtml(p.img)}" alt="${escapeHtml(p.name)}" onerror="this.src='https://via.placeholder.com/300x400?text=No+Image'"></div>
       <div class="product-title">${escapeHtml(p.name)}</div>
-      <div class="buy"><button class="btn-buy">Satın Al</button></div>
-    `;
+      <div class="buy"><button class="btn-buy">Satın Al</button></div>`;
     a.appendChild(card);
     container.appendChild(a);
   });
 }
 
-/* ---------- ADMIN UI ---------- */
+/* pagination buttons */
+$('#prev-page')?.addEventListener('click', ()=>{ if(currentPage>1){ currentPage--; renderProductsPage(currentPage); updatePageInfo(); }});
+$('#next-page')?.addEventListener('click', ()=>{ if(currentPage<totalPages()){ currentPage++; renderProductsPage(currentPage); updatePageInfo(); }});
+
+/* ---------- ADMIN: protect route (simple sessionStorage) ---------- */
+if(location.pathname.endsWith('admin.html')){
+  if(sessionStorage.getItem('vortex_is_admin') !== '1'){
+    // not logged in
+    location.href = 'admin-login.html';
+  }
+}
+
+/* ---------- ADMIN: add/update/delete + UI ---------- */
 const form = $('#product-form');
 if(form){
   const nameIn = $('#prod-name');
@@ -98,90 +110,97 @@ if(form){
   const linkIn = $('#prod-link');
   const previewImg = $('#preview-img');
   const previewTitle = $('#preview-title');
-  // preview update
-  [nameIn,imgIn].forEach(i => i?.addEventListener('input', ()=>{
-    previewImg.src = imgIn.value || 'https://via.placeholder.com/300x200?text=Preview';
+  // preview
+  [nameIn,imgIn].forEach(i=> i?.addEventListener('input', ()=>{
+    previewImg.src = imgIn.value || 'https://via.placeholder.com/300x400?text=Preview';
     previewTitle.textContent = nameIn.value || 'Ürün adı burada görünür';
   }));
 
+  // add
   form.addEventListener('submit', async (e)=>{
     e.preventDefault();
     const name = nameIn.value.trim();
-    const img = imgIn.value.trim();
+    const img  = imgIn.value.trim();
     const link = linkIn.value.trim();
-    if(!name || !img) return alert('Ad ve görsel gerekli.');
-    // ekle
-    await addDoc(collection(db,'products'), { name, img, link, _ts: Date.now() });
+    if(!name || !img) return alert('Ürün adı ve görsel gerekli.');
+    await addDoc(collection(db,'products'),{ name, img, link, _ts: Date.now() });
     nameIn.value = imgIn.value = linkIn.value = '';
-    previewImg.src = '';
-    renderProductsAdmin(); fetchAllProducts();
+    previewImg.src='';
+    fetchAllProducts(); renderProductsAdmin();
   });
 
-  $('#clear-form')?.addEventListener('click', ()=>{
-    form.reset();
-    $('#preview-img').src='';
-    $('#preview-title').textContent='Ürün adı burada görünür';
-  });
+  $('#clear-form')?.addEventListener('click', ()=>{ form.reset(); previewImg.src=''; previewTitle.textContent='Ürün adı burada görünür'; });
 }
 
-/* ---------- ADMIN: listele/güncelle/sil (live snapshot ile) ---------- */
+/* modal helpers (in-page confirmations) */
+const modal = $('#modal');
+const modalTitle = $('#modal-title');
+const modalText = $('#modal-text');
+const modalCancel = $('#modal-cancel');
+const modalConfirm = $('#modal-confirm');
+
+let modalResolve = null;
+function showModal(title, text){
+  modalTitle.textContent = title; modalText.textContent = text;
+  modal.setAttribute('aria-hidden','false');
+  return new Promise(res=>{
+    modalResolve = res;
+  });
+}
+modalCancel?.addEventListener('click', ()=>{ modal.setAttribute('aria-hidden','true'); modalResolve && modalResolve(false); });
+modalConfirm?.addEventListener('click', ()=>{ modal.setAttribute('aria-hidden','true'); modalResolve && modalResolve(true); });
+
+/* render admin products with edit/delete (uses modal) */
 async function renderProductsAdmin(){
   const container = $('#product-list-admin');
   if(!container) return;
   container.innerHTML = '';
-  // snapshot yerine getDocs (basit)
   const snap = await getDocs(collection(db,'products'));
-  // sort by timestamp desc
   const arr = [];
-  snap.forEach(d => arr.push({id:d.id,...d.data()}));
+  snap.forEach(d => arr.push({ id:d.id, ...d.data() }));
   arr.sort((a,b)=> (b._ts||0)-(a._ts||0));
   arr.forEach(p=>{
     const div = document.createElement('div');
     div.className = 'product-card';
     div.innerHTML = `<div class="neon-border"></div>
-      <img src="${p.img}" alt="${escapeHtml(p.name)}" onerror="this.src='https://via.placeholder.com/300x200?text=No+Image'">
-      <div style="margin-top:8px;font-weight:700;color:var(--neon)">${escapeHtml(p.name)}</div>
-      <div style="margin-top:auto;display:flex;gap:8px;justify-content:center">
+      <div class="img-wrap"><img src="${escapeHtml(p.img)}" alt="${escapeHtml(p.name)}" onerror="this.src='https://via.placeholder.com/300x400?text=No+Image'"></div>
+      <div style="margin-top:10px;font-weight:700;color:var(--neon)">${escapeHtml(p.name)}</div>
+      <div style="margin-top:auto;display:flex;gap:8px;justify-content:center;margin-bottom:6px">
         <button class="btn-buy" data-id="${p.id}" data-action="edit">Güncelle</button>
         <button style="background:#e74c3c" data-id="${p.id}" data-action="delete">Sil</button>
       </div>`;
-    // actions
+    // attach events
     div.querySelector('[data-action="edit"]').addEventListener('click', async ()=>{
       const newName = prompt('Yeni isim:', p.name) || p.name;
       const newImg  = prompt('Yeni görsel URL:', p.img) || p.img;
-      const newLink = prompt('Yeni link:', p.link) || p.link;
+      const newLink = prompt('Yeni link (boş bırakılabilir):', p.link) || p.link;
+      const ok = await showModal('Güncelleme Onayı', 'Bu ürünü güncellemek istediğinize emin misiniz?');
+      if(!ok) return;
       await updateDoc(doc(db,'products',p.id), { name:newName, img:newImg, link:newLink });
-      renderProductsAdmin(); fetchAllProducts();
+      fetchAllProducts(); renderProductsAdmin();
     });
     div.querySelector('[data-action="delete"]').addEventListener('click', async ()=>{
-      if(!confirm('Silinsin mi?')) return;
+      const ok = await showModal('Silme Onayı', 'Bu ürünü silmek istediğinize emin misiniz? Bu işlem geri alınamaz.');
+      if(!ok) return;
       await deleteDoc(doc(db,'products',p.id));
-      renderProductsAdmin(); fetchAllProducts();
+      fetchAllProducts(); renderProductsAdmin();
     });
+
     container.appendChild(div);
   });
 }
 
-/* ---------- HELPERS ---------- */
-function escapeHtml(s){
-  return String(s||'').replace(/[&<>"']/g, (m)=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));
-}
-
-/* ---------- PAGE CONTROLS ---------- */
-$('#prev-page')?.addEventListener('click', ()=>{
-  if(currentPage>1) currentPage--, renderProductsPage(currentPage), updatePageInfo();
-});
-$('#next-page')?.addEventListener('click', ()=>{
-  if(currentPage<totalPages()) currentPage++, renderProductsPage(currentPage), updatePageInfo();
+/* logout link */
+$('#logout-btn')?.addEventListener('click', (e)=>{
+  e.preventDefault();
+  sessionStorage.removeItem('vortex_is_admin');
+  location.href = 'admin-login.html';
 });
 
-/* ---------- initial fetch ---------- */
+/* ---------- initial fetches ---------- */
 fetchAllProducts();
 renderProductsAdmin();
 
-/* ---------- video autoplay safety ---------- */
-const video = document.getElementById('bg-video');
-if(video){
-  video.muted = true;
-  video.play().catch(()=>{ /* ignore autoplay block */ });
-}
+/* ---------- video autoplay fallback ---------- */
+const video = $('#bg-video');
+if(video){ video.muted = true; video.play().catch(()=>{/* ignore autoplay block */}); }

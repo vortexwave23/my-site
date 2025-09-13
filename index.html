@@ -1,46 +1,43 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>VORTEX — Ürünler</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>VORTEX — Ürünler</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<!-- arka video (opsiyonel) -->
-<video id="bg-video" autoplay muted loop playsinline>
-  <source src="video.mp4" type="video/mp4">
-</video>
+  <!-- hareketli arka plan (gradient + video opsiyonel) -->
+  <div class="animated-bg"></div>
+  <video id="bg-video" autoplay muted loop playsinline style="display:none">
+    <source src="video.mp4" type="video/mp4">
+  </video>
 
-<!-- nav minimal: sadece admin link -->
-<nav class="topnav">
-  <ul>
-    <li><a href="admin.html">Admin</a></li>
-  </ul>
-</nav>
+  <nav class="topnav">
+    <ul>
+      <li><a href="admin-login.html">Admin Giriş</a></li>
+    </ul>
+  </nav>
 
-<!-- products section -->
-<main class="main">
-  <section id="products-section" class="products-section">
-    <div class="products-header">
-      <h2>Ürünler</h2>
-      <div class="pagination-controls">
-        <button id="prev-page" class="page-btn">‹</button>
-        <span id="page-info">1 / 1</span>
-        <button id="next-page" class="page-btn">›</button>
+  <main class="main">
+    <section id="products-section" class="products-section">
+      <div class="products-header">
+        <h2>Ürünler</h2>
+        <div class="pagination-controls">
+          <button id="prev-page" class="page-btn">‹</button>
+          <span id="page-info">1 / 1</span>
+          <button id="next-page" class="page-btn">›</button>
+        </div>
       </div>
-    </div>
 
-    <div id="product-list" class="product-grid" aria-live="polite"></div>
-  </section>
-</main>
+      <div id="product-list" class="product-grid" aria-live="polite"></div>
+    </section>
+  </main>
 
-<!-- sparkle cursor element -->
-<div id="sparkles-container" aria-hidden="true"></div>
+  <div id="sparkles-container" aria-hidden="true"></div>
 
-<script type="module" src="app.js"></script>
+  <script type="module" src="app.js"></script>
 </body>
 </html>

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Girişi</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="login-container">
+  <h2>Admin Panel Girişi</h2>
+  <form id="admin-login-form">
+    <input type="text" id="username" placeholder="Kullanıcı Adı" required>
+    <input type="password" id="password" placeholder="Parola" required>
+    <button type="submit">Giriş Yap</button>
+  </form>
+  <div id="login-msg" style="margin-top:10px;color:#f0f;text-shadow:0 0 10px #c020ff;"></div>
+</div>
+
+<script>
+document.getElementById('admin-login-form').addEventListener('submit', function(e){
+  e.preventDefault();
+  const user = document.getElementById('username').value;
+  const pass = document.getElementById('password').value;
+  if(user === 'admin' && pass === '1234'){ 
+    window.location.href = 'admin-panel.html';
+  } else {
+    document.getElementById('login-msg').textContent = 'Hatalı kullanıcı adı veya parola!';
+  }
+});
+</script>
+</body>
+</html>

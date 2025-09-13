@@ -3,32 +3,33 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Girişi</title>
+<title>Admin Panel</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="admin.css">
 </head>
 <body>
-<div class="login-container">
-  <h2>Admin Panel Girişi</h2>
-  <form id="admin-login-form">
-    <input type="text" id="username" placeholder="Kullanıcı Adı" required>
-    <input type="password" id="password" placeholder="Parola" required>
+
+<div class="login-container" id="login-container">
+  <h1>Admin Girişi</h1>
+  <form id="login-form">
+    <input type="text" placeholder="Kullanıcı Adı" id="username" required>
+    <input type="password" placeholder="Şifre" id="password" required>
     <button type="submit">Giriş Yap</button>
   </form>
-  <div id="login-msg" style="margin-top:10px;color:#f0f;text-shadow:0 0 10px #c020ff;"></div>
+  <p id="login-msg"></p>
 </div>
 
-<script>
-document.getElementById('admin-login-form').addEventListener('submit', function(e){
-  e.preventDefault();
-  const user = document.getElementById('username').value;
-  const pass = document.getElementById('password').value;
-  if(user === 'admin' && pass === '1234'){ 
-    window.location.href = 'admin-panel.html';
-  } else {
-    document.getElementById('login-msg').textContent = 'Hatalı kullanıcı adı veya parola!';
-  }
-});
-</script>
+<div class="admin-panel" id="admin-panel" style="display:none;">
+  <h1>Ürün Yönetimi</h1>
+  <form id="product-form">
+    <input type="text" id="prod-name" placeholder="Ürün Adı" required>
+    <input type="url" id="prod-img" placeholder="Ürün Resim URL" required>
+    <input type="url" id="prod-link" placeholder="Ürün Linki" required>
+    <button type="submit">Ürün Ekle</button>
+  </form>
+  <div id="product-list-admin" class="product-container"></div>
+</div>
+
+<script type="module" src="admin.js"></script>
 </body>
 </html>

@@ -1,28 +1,25 @@
 <!DOCTYPE html>
-<canvas id="stars"></canvas>
+<html lang="tr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VORTEX</title>
+<title>Vortex</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<!-- Hareketli arka plan -->
-<div id="bg-animation"></div>
 
 <nav>
   <ul>
-    <li><a href="admin-login.html">Admin Panel</a></li>
+    <li><a href="admin.html">Admin Panel</a></li>
   </ul>
 </nav>
-  
-<section id="products-section">
-  <h2>Ürünlerimiz</h2>
-  <div id="product-list" class="product-container"></div>
-</section>
 
-<div class="clock" id="clock"></div>
+<section id="products-section">
+  <h2>Ürünler</h2>
+  <div id="product-list"></div>
+  <div id="pagination"></div>
+</section>
 
 <script type="module" src="app.js"></script>
 </body>

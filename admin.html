@@ -6,21 +6,20 @@
 <title>Admin Panel</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 </head>
 <body>
-
 <h1>Admin Panel</h1>
 
 <form id="product-form">
-  <input type="text" id="prod-name" placeholder="Ürün İsmi" required>
-  <input type="url" id="prod-img" placeholder="Ürün Görseli URL" required>
-  <input type="url" id="prod-link" placeholder="Ürün Linki" required>
+  <input type="text" id="prod-name" placeholder="Ürün Adı" required>
+  <input type="text" id="prod-img" placeholder="Ürün Foto URL" required>
+  <input type="text" id="prod-link" placeholder="Ürün Link" required>
   <button type="submit">Ürün Ekle</button>
 </form>
 
 <h2>Ürünler</h2>
-<div id="product-list-admin"></div>
-<div id="pagination-admin"></div>
+<div id="product-list-admin" class="product-container"></div>
 
 <script type="module" src="app.js"></script>
 </body>

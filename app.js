@@ -10,31 +10,29 @@ const firebaseConfig = {
   appId: "1:258131108684:web:2b0c148b1610594d6da5e9",
   measurementId: "G-N9D14VVN4R"
 };
-
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// 🔹 Admin panel ürün ekleme
+// 🔹 Admin Panel: Ürün Ekleme
 const form = document.getElementById("product-form");
 if(form){
-  form.addEventListener("submit", async (e)=>{
+  form.addEventListener("submit", async e=>{
     e.preventDefault();
     const name = document.getElementById("prod-name").value;
     const img = document.getElementById("prod-img").value;
     const link = document.getElementById("prod-link").value;
 
-    // Yeni ürün eklerken sıra indexini alıyoruz
     const querySnapshot = await getDocs(collection(db,"products"));
     const order = querySnapshot.size;
 
-    await addDoc(collection(db,"products"), {name, img, link, order});
+    await addDoc(collection(db,"products"), {name,img,link,order});
     form.reset();
     renderProductsAdmin();
     renderProductsGuest();
   });
 }
 
-// 🔹 Admin panelde ürünleri listeleme ve sürükle-bırak
+// 🔹 Admin Panel Ürün Listeleme ve Sürükle-Bırak
 async function renderProductsAdmin(){
   const container = document.getElementById("product-list-admin");
   if(!container) return;
@@ -46,16 +44,13 @@ async function renderProductsAdmin(){
   querySnapshot.forEach(docSnap=>{
     const p = docSnap.data();
     const div = document.createElement("div");
-    div.className = "product";
-    div.dataset.id = docSnap.id;
-
-    div.innerHTML = `
+    div.className="product";
+    div.dataset.id=docSnap.id;
+    div.innerHTML=`
       <img src="${p.img}" alt="${p.name}">
       <p class="prod-name">${p.name}</p>
       <button class="delete-btn">Sil</button>
     `;
-
-    // Silme butonu
     div.querySelector(".delete-btn").addEventListener("click", async ()=>{
       if(confirm("Ürünü silmek istediğine emin misin?")){
         await deleteDoc(doc(db,"products",docSnap.id));
@@ -63,46 +58,65 @@ async function renderProductsAdmin(){
         renderProductsGuest();
       }
     });
-
     container.appendChild(div);
   });
 
-  // 🔹 SortableJS ile sürükle-bırak
   Sortable.create(container, {
-    animation: 150,
-    onEnd: async (evt)=>{
+    animation:150,
+    onEnd: async ()=>{
       const children = Array.from(container.children);
       for(let i=0;i<children.length;i++){
         const id = children[i].dataset.id;
-        await updateDoc(doc(db,"products",id), {order: i});
+        await updateDoc(doc(db,"products",id), {order:i});
       }
     }
   });
 }
 
-// 🔹 Guest panelde ürünleri listeleme
+// 🔹 Guest Panel Ürün Listeleme
 async function renderProductsGuest(){
   const container = document.getElementById("product-list");
   if(!container) return;
   container.innerHTML="";
   const q = query(collection(db,"products"), orderBy("order"));
   const querySnapshot = await getDocs(q);
+  const perPage = 6; // 1 sayfada 6 ürün
+  let currentPage = 1;
 
-  querySnapshot.forEach(docSnap=>{
-    const p = docSnap.data();
-    const a = document.createElement("a");
-    a.href = p.link;
-    a.target="_blank";
-    const img = document.createElement("img");
-    img.src = p.img;
-    img.alt = p.name;
-    const span = document.createElement("span");
-    span.textContent = p.name;
-    span.className = "prod-name-guest";
-    a.appendChild(img);
-    a.appendChild(span);
-    container.appendChild(a);
-  });
+  function renderPage(page){
+    container.innerHTML="";
+    const start = (page-1)*perPage;
+    const end = start+perPage;
+    const pageItems = querySnapshot.docs.slice(start,end);
+    pageItems.forEach(docSnap=>{
+      const p = docSnap.data();
+      const a = document.createElement("a");
+      a.href = p.link;
+      a.target="_blank";
+      const img = document.createElement("img");
+      img.src = p.img;
+      img.alt = p.name;
+      const span = document.createElement("span");
+      span.textContent=p.name;
+      span.className="prod-name-guest";
+      a.appendChild(img);
+      a.appendChild(span);
+      container.appendChild(a);
+    });
+
+    const pagination = document.getElementById("pagination");
+    pagination.innerHTML="";
+    const pageCount = Math.ceil(querySnapshot.docs.length/perPage);
+    for(let i=1;i<=pageCount;i++){
+      const btn = document.createElement("button");
+      btn.textContent=i;
+      if(i===page) btn.classList.add("active");
+      btn.addEventListener("click",()=>{currentPage=i; renderPage(currentPage);});
+      pagination.appendChild(btn);
+    }
+  }
+
+  renderPage(currentPage);
 }
 
 renderProductsAdmin();

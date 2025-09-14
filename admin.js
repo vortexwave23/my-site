@@ -60,3 +60,53 @@ function updateProduct(productId) {
         alert("Ürün güncellendi!");
     });
 }
+// Özel onay penceresi
+function customConfirm(message, callback) {
+    // Eski onay kutusu varsa temizle
+    let oldBox = document.querySelector(".custom-confirm");
+    if (oldBox) oldBox.remove();
+
+    // Kutu oluştur
+    let box = document.createElement("div");
+    box.className = "custom-confirm";
+    box.innerHTML = `
+        <div class="confirm-content">
+            <p>${message}</p>
+            <div class="confirm-buttons">
+                <button id="confirm-yes">Evet</button>
+                <button id="confirm-no">Hayır</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(box);
+
+    // Butonlar
+    document.getElementById("confirm-yes").onclick = function() {
+        box.remove();
+        callback(true);
+    };
+    document.getElementById("confirm-no").onclick = function() {
+        box.remove();
+        callback(false);
+    };
+}
+
+// Silme işlemi
+function deleteProduct(id) {
+    customConfirm("Bu ürünü silmek istediğine emin misin?", function(result) {
+        if (result) {
+            console.log("Ürün silindi:", id);
+            // Buraya silme işlemi backend kodunu ekle
+        }
+    });
+}
+
+// Güncelleme işlemi
+function updateProduct(id) {
+    customConfirm("Bu ürünü güncellemek istediğine emin misin?", function(result) {
+        if (result) {
+            console.log("Ürün güncellendi:", id);
+            // Buraya güncelleme işlemi backend kodunu ekle
+        }
+    });
+}

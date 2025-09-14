@@ -1,27 +1,62 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, doc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+// Modal kontrol fonksiyonu
+function showConfirmModal(message, onConfirm) {
+    const modal = document.getElementById("confirmModal");
+    const modalMessage = document.getElementById("confirmMessage");
+    const confirmBtn = document.getElementById("confirmYes");
+    const cancelBtn = document.getElementById("confirmNo");
 
-const firebaseConfig = {
-  apiKey: "AIzaSyBFWkamflwlXyiX8WXS8lf3hwri4y5Cmqw",
-  authDomain: "data-85f1e.firebaseapp.com",
-  projectId: "data-85f1e",
-  storageBucket: "data-85f1e.firebasestorage.app",
-  messagingSenderId: "258131108684",
-  appId: "1:258131108684:web:2b0c148b1610594d6da5e9",
-  measurementId: "G-N9D14VVN4R"
-};
+    modalMessage.textContent = message;
+    modal.style.display = "flex";
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+    confirmBtn.onclick = () => {
+        modal.style.display = "none";
+        onConfirm();
+    };
+    cancelBtn.onclick = () => {
+        modal.style.display = "none";
+    };
+}
 
-// 🔹 Admin Login
-const loginForm = document.getElementById("login-form");
-loginForm.addEventListener("submit",(e)=>{
-  e.preventDefault();
-  const user = document.getElementById("username").value;
-  const pass = document.getElementById("password").value;
-  const msg = document.getElementById("login-msg");
-  if(user==="admin" && pass==="1234"){
-    document.getElementById("login-container").style.display="none";
-    document.getElementById("admin-panel").style.display="block";
-  } else {
+// Ürün ekle
+function addProduct() {
+    const name = document.getElementById("productName").value;
+    const img = document.getElementById("productImage").value;
+
+    if (name.trim() === "" || img.trim() === "") {
+        alert("Lütfen tüm alanları doldurun!");
+        return;
+    }
+
+    const list = document.getElementById("product-list");
+
+    const card = document.createElement("div");
+    card.className = "product-card";
+    const id = "product-" + Date.now();
+    card.id = id;
+
+    card.innerHTML = `
+        <img src="${img}" alt="${name}">
+        <h3>${name}</h3>
+        <button class="update-btn" onclick="updateProduct('${id}')">Güncelle</button>
+        <button class="delete-btn" onclick="deleteProduct('${id}')">Sil</button>
+    `;
+
+    list.appendChild(card);
+
+    document.getElementById("productName").value = "";
+    document.getElementById("productImage").value = "";
+}
+
+// Ürün sil
+function deleteProduct(productId) {
+    showConfirmModal("Bu ürünü silmek istediğine emin misin?", () => {
+        document.getElementById(productId).remove();
+    });
+}
+
+// Ürün güncelle
+function updateProduct(productId) {
+    showConfirmModal("Bu ürünü güncellemek istediğine emin misin?", () => {
+        alert("Ürün güncellendi!");
+    });
+}

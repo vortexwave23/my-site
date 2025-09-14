@@ -1,36 +1,35 @@
 <!DOCTYPE html>
-<canvas id="stars"></canvas>
 <html lang="tr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Panel</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <title>Admin Panel</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div id="bg-animation"></div>
 
-<div class="admin-container">
-  <h1>Ürün Yönetimi</h1>
-  <form id="product-form">
-    <input type="text" id="prod-name" placeholder="Ürün İsmi" required>
-    <input type="url" id="prod-img" placeholder="Ürün Resim Linki" required>
-    <input type="url" id="prod-link" placeholder="Ürün Linki" required>
-    <button type="submit">Ürün Ekle</button>
-  </form>
-  
-  <div id="product-list-admin" class="product-container"></div>
-</div>
+  <div class="admin-container">
+    <h1>Admin Panel</h1>
 
-<script type="module" src="app.js"></script>
+    <div class="form-section">
+      <input type="text" id="productName" placeholder="Ürün Adı">
+      <input type="text" id="productImage" placeholder="Ürün Resim URL">
+      <button onclick="addProduct()">Ürün Ekle</button>
+    </div>
+
+    <div id="product-list" class="product-list">
+      <!-- Ürünler buraya eklenecek -->
+    </div>
+  </div>
+
+  <!-- Onay Modal -->
+  <div id="confirmModal" class="modal">
+    <div class="modal-content">
+      <p id="confirmMessage"></p>
+      <button id="confirmYes" class="btn-yes">Evet</button>
+      <button id="confirmNo" class="btn-no">Hayır</button>
+    </div>
+  </div>
+
+  <script src="admin.js"></script>
 </body>
 </html>
-<!-- Onay Modal -->
-<div id="confirmModal" class="modal">
-  <div class="modal-content">
-    <p id="confirmMessage"></p>
-    <button id="confirmYes" class="btn-yes">Evet</button>
-    <button id="confirmNo" class="btn-no">Hayır</button>
-  </div>
-</div>

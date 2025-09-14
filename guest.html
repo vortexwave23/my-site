@@ -1,16 +1,31 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Guest Panel</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <title>Guest Panel</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<h1>Guest Panel</h1>
-<div id="product-list"></div>
 
-<script type="module" src="app.js"></script>
+  <div class="guest-container">
+    <h1>Ürünler</h1>
+    <div id="guest-product-list" class="product-list">
+      <!-- Ürünler buraya eklenecek -->
+    </div>
+  </div>
+
+  <!-- Ürün Detay Modal -->
+  <div id="productModal" class="modal">
+    <div class="modal-content">
+      <h2 id="modalProductName"></h2>
+      <img id="modalProductImage" src="" alt="Ürün" />
+      <div>
+        <button id="modalBuy" class="btn-yes">Satın Al</button>
+        <button id="modalClose" class="btn-no">Kapat</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="guest.js"></script>
 </body>
 </html>

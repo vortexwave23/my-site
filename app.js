@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBFWkamflwlXyiX8WXS8lf3hwri4y5Cmqw",
@@ -14,101 +14,96 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// Pagination ayarları
-const ITEMS_PER_PAGE = 6;
-
-// 🔹 Admin panel: ürün ekleme
+// 🔹 Admin panel ürün ekleme
 const form = document.getElementById("product-form");
-if (form) {
-  form.addEventListener("submit", async (e) => {
+if(form){
+  form.addEventListener("submit", async (e)=>{
     e.preventDefault();
     const name = document.getElementById("prod-name").value;
     const img = document.getElementById("prod-img").value;
     const link = document.getElementById("prod-link").value;
 
-    await addDoc(collection(db, "products"), { name, img, link });
-    alert("Ürün eklendi!");
+    // Yeni ürün eklerken sıra indexini alıyoruz
+    const querySnapshot = await getDocs(collection(db,"products"));
+    const order = querySnapshot.size;
+
+    await addDoc(collection(db,"products"), {name, img, link, order});
     form.reset();
     renderProductsAdmin();
+    renderProductsGuest();
   });
 }
 
-// 🔹 Admin panel: ürünleri listeleme ve silme
-async function renderProductsAdmin(page=1) {
+// 🔹 Admin panelde ürünleri listeleme ve sürükle-bırak
+async function renderProductsAdmin(){
   const container = document.getElementById("product-list-admin");
-  const pagination = document.getElementById("pagination-admin");
-  if(!container || !pagination) return;
-  container.innerHTML = "";
-  pagination.innerHTML = "";
+  if(!container) return;
+  container.innerHTML="";
 
-  const querySnapshot = await getDocs(collection(db, "products"));
-  const products = querySnapshot.docs.map(d=>({id:d.id, ...d.data()}));
-  const totalPages = Math.ceil(products.length / ITEMS_PER_PAGE);
-  const start = (page-1) * ITEMS_PER_PAGE;
-  const end = start + ITEMS_PER_PAGE;
-  const pageProducts = products.slice(start,end);
+  const q = query(collection(db,"products"), orderBy("order"));
+  const querySnapshot = await getDocs(q);
 
-  pageProducts.forEach(p=>{
+  querySnapshot.forEach(docSnap=>{
+    const p = docSnap.data();
     const div = document.createElement("div");
-    div.classList.add("product-admin");
-    div.innerHTML = `<img src="${p.img}" alt="${p.name}"><p>${p.name}</p>`;
-    const delBtn = document.createElement("button");
-    delBtn.textContent = "Sil";
-    delBtn.classList.add("delete-btn");
-    delBtn.onclick = async ()=> {
-      if(confirm("Bu ürünü silmek istediğine emin misin?")){
-        await deleteDoc(doc(db,"products",p.id));
-        renderProductsAdmin(page);
+    div.className = "product";
+    div.dataset.id = docSnap.id;
+
+    div.innerHTML = `
+      <img src="${p.img}" alt="${p.name}">
+      <p class="prod-name">${p.name}</p>
+      <button class="delete-btn">Sil</button>
+    `;
+
+    // Silme butonu
+    div.querySelector(".delete-btn").addEventListener("click", async ()=>{
+      if(confirm("Ürünü silmek istediğine emin misin?")){
+        await deleteDoc(doc(db,"products",docSnap.id));
+        renderProductsAdmin();
+        renderProductsGuest();
       }
-    };
-    div.appendChild(delBtn);
+    });
+
     container.appendChild(div);
   });
 
-  for(let i=1;i<=totalPages;i++){
-    const btn = document.createElement("button");
-    btn.textContent = i;
-    btn.classList.add("page-btn");
-    if(i===page) btn.classList.add("active");
-    btn.onclick = ()=> renderProductsAdmin(i);
-    pagination.appendChild(btn);
-  }
+  // 🔹 SortableJS ile sürükle-bırak
+  Sortable.create(container, {
+    animation: 150,
+    onEnd: async (evt)=>{
+      const children = Array.from(container.children);
+      for(let i=0;i<children.length;i++){
+        const id = children[i].dataset.id;
+        await updateDoc(doc(db,"products",id), {order: i});
+      }
+    }
+  });
 }
 
-// 🔹 Guest panel: ürünleri listeleme
-async function renderProducts(page=1) {
+// 🔹 Guest panelde ürünleri listeleme
+async function renderProductsGuest(){
   const container = document.getElementById("product-list");
-  const pagination = document.getElementById("pagination");
-  if(!container || !pagination) return;
-  container.innerHTML = "";
-  pagination.innerHTML = "";
+  if(!container) return;
+  container.innerHTML="";
+  const q = query(collection(db,"products"), orderBy("order"));
+  const querySnapshot = await getDocs(q);
 
-  const querySnapshot = await getDocs(collection(db, "products"));
-  const products = querySnapshot.docs.map(d=>({id:d.id, ...d.data()}));
-  const totalPages = Math.ceil(products.length / ITEMS_PER_PAGE);
-  const start = (page-1) * ITEMS_PER_PAGE;
-  const end = start + ITEMS_PER_PAGE;
-  const pageProducts = products.slice(start,end);
-
-  pageProducts.forEach(p=>{
+  querySnapshot.forEach(docSnap=>{
+    const p = docSnap.data();
     const a = document.createElement("a");
     a.href = p.link;
     a.target="_blank";
-    a.classList.add("product");
-    a.innerHTML = `<img src="${p.img}" alt="${p.name}"><p>${p.name}</p>`;
+    const img = document.createElement("img");
+    img.src = p.img;
+    img.alt = p.name;
+    const span = document.createElement("span");
+    span.textContent = p.name;
+    span.className = "prod-name-guest";
+    a.appendChild(img);
+    a.appendChild(span);
     container.appendChild(a);
   });
-
-  for(let i=1;i<=totalPages;i++){
-    const btn = document.createElement("button");
-    btn.textContent = i;
-    btn.classList.add("page-btn");
-    if(i===page) btn.classList.add("active");
-    btn.onclick = ()=> renderProducts(i);
-    pagination.appendChild(btn);
-  }
 }
 
-// Render işlemleri
 renderProductsAdmin();
-renderProducts();
+renderProductsGuest();

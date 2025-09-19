@@ -67,9 +67,9 @@ a{color:inherit;text-decoration:none}
 .product-card::before{
   content:"";
   position:absolute;inset:0;border-radius:inherit;padding:2px;
-  background:linear-gradient(90deg, rgba(155,89,182,0.08), rgba(142,68,173,0.06));
+  background:linear-gradient(90deg, rgba(156, 89, 182, 0.178), rgba(113, 68, 173, 0.349));
   pointer-events:none;
-  box-shadow:0 6px 24px rgba(155,89,182,0.06),0 0 30px rgba(155,89,182,0.03);
+  box-shadow:0 6px 24px rgba(45, 5, 119, 0.329),0 0 30px rgba(155,89,182,0.03);
 }
 .product-card .neon-border{
   position:absolute;inset:0;border-radius:inherit;pointer-events:none;
@@ -92,9 +92,9 @@ a{color:inherit;text-decoration:none}
 .product-title{
   margin:10px 0 0;
   font-weight:700;
-  color:#fff;
+  color:#bcb2f7;
   font-size:15px;
-  text-shadow:0 0 8px rgba(155,89,182,0.9),0 0 18px rgba(142,68,173,0.6);
+  text-shadow:0 0 8px rgba(209, 13, 209, 0.9),0 0 18px rgba(38, 29, 163, 0.6);
   background: linear-gradient(90deg,#fff 0%,#fff 100%);
   -webkit-background-clip:text;background-clip:text;color:transparent;
 }
@@ -112,7 +112,7 @@ a{color:inherit;text-decoration:none}
 /* buy button */
 .btn-buy{
   background:var(--neon);
-  color:#fff;padding:8px 12px;border-radius:10px;font-weight:700;border:none;cursor:pointer;box-shadow:0 8px 30px rgba(155,89,182,0.12)
+  color:#acb4ff;padding:8px 12px;border-radius:10px;font-weight:700;border:none;cursor:pointer;box-shadow:0 8px 30px rgba(155,89,182,0.12)
 }
 .btn-buy:hover{transform:translateY(-3px)}
 

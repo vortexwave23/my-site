@@ -47,14 +47,14 @@ function $all(sel){return Array.from(document.querySelectorAll(sel))}
 /* ---------- PAGINATION (guest) ---------- */
 const PAGE_SIZE = 9;
 let currentPage = 1;
-let cachedProducts = []; // tüm ürünleri tutacağız
+let cachedProducts = [];
 
 async function fetchAllProducts(){
   console.log("Fetching all products...");
   const snap = await getDocs(collection(db,'products'));
   const arr = [];
   snap.forEach(d => arr.push({id:d.id, ...d.data()}));
-  arr.sort((a,b)=> (a._ts||0) < (b._ts||0) ? 1:-1);
+  arr.sort((a,b) => (a.order || 0) - (b.order || 0)); // order alanına göre sırala
   cachedProducts = arr;
   console.log("Total products fetched:", cachedProducts.length);
   renderProductsPage(currentPage);
@@ -115,7 +115,6 @@ if(form){
   const linkIn = $('#prod-link');
   const previewImg = $('#preview-img');
   const previewTitle = $('#preview-title');
-  // preview update
   [nameIn,imgIn].forEach(i => i?.addEventListener('input', ()=>{
     previewImg.src = imgIn.value || 'https://via.placeholder.com/300x200?text=Preview';
     previewTitle.textContent = nameIn.value || 'Ürün adı burada görünür';
@@ -127,7 +126,9 @@ if(form){
     const img = imgIn.value.trim();
     const link = linkIn.value.trim();
     if(!name || !img) return alert('Ad ve görsel gerekli.');
-    await addDoc(collection(db,'products'), { name, img, link, _ts: Date.now() });
+    const snap = await getDocs(collection(db, "products"));
+    const order = snap.size;
+    await addDoc(collection(db,'products'), { name, img, link, order, _ts: Date.now() });
     nameIn.value = imgIn.value = linkIn.value = '';
     previewImg.src = '';
     renderProductsAdmin(); 
@@ -149,10 +150,12 @@ async function renderProductsAdmin(){
   const snap = await getDocs(collection(db,'products'));
   const arr = [];
   snap.forEach(d => arr.push({id:d.id,...d.data()}));
-  arr.sort((a,b)=> (b._ts||0)-(a._ts||0));
+  arr.sort((a,b)=> (a.order || 0) - (b.order || 0));
   arr.forEach(p=>{
     const div = document.createElement('div');
     div.className = 'product-card';
+    div.setAttribute("draggable", "true");
+    div.setAttribute("data-id", p.id);
     div.innerHTML = `<div class="neon-border"></div>
       <img src="${p.img}" alt="${escapeHtml(p.name)}" onerror="this.src='https://via.placeholder.com/300x200?text=No+Image'">
       <div style="margin-top:8px;font-weight:700;color:var(--neon)">${escapeHtml(p.name)}</div>
@@ -170,8 +173,35 @@ async function renderProductsAdmin(){
     div.querySelector('[data-action="delete"]').addEventListener('click', async ()=>{
       if(!confirm('Silinsin mi?')) return;
       await deleteDoc(doc(db,'products',p.id));
+      await updateProductOrders();
       renderProductsAdmin(); fetchAllProducts();
     });
+
+    // Sürükle-bırak olayları
+    div.addEventListener("dragstart", (e) => {
+      e.dataTransfer.setData("text/plain", p.id);
+      div.classList.add("dragging");
+    });
+
+    div.addEventListener("dragend", () => {
+      div.classList.remove("dragging");
+    });
+
+    div.addEventListener("dragover", (e) => {
+      e.preventDefault();
+    });
+
+    div.addEventListener("drop", async (e) => {
+      e.preventDefault();
+      const draggedId = e.dataTransfer.getData("text/plain");
+      const targetId = p.id;
+      if (draggedId !== targetId) {
+        await reorderProducts(draggedId, targetId);
+        renderProductsAdmin();
+        fetchAllProducts();
+      }
+    });
+
     container.appendChild(div);
   });
 }
@@ -179,6 +209,34 @@ async function renderProductsAdmin(){
 /* ---------- HELPERS ---------- */
 function escapeHtml(s){
   return String(s||'').replace(/[&<>"']/g, (m)=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));
+}
+
+async function reorderProducts(draggedId, targetId) {
+  const snap = await getDocs(collection(db, "products"));
+  const products = [];
+  snap.forEach((d) => products.push({ id: d.id, ...d.data() }));
+  products.sort((a, b) => (a.order || 0) - (b.order || 0));
+
+  const draggedIndex = products.findIndex(p => p.id === draggedId);
+  const targetIndex = products.findIndex(p => p.id === targetId);
+
+  const [draggedProduct] = products.splice(draggedIndex, 1);
+  products.splice(targetIndex, 0, draggedProduct);
+
+  for (let i = 0; i < products.length; i++) {
+    await updateDoc(doc(db, "products", products[i].id), { order: i });
+  }
+}
+
+async function updateProductOrders() {
+  const snap = await getDocs(collection(db, "products"));
+  const products = [];
+  snap.forEach((d) => products.push({ id: d.id, ...d.data() }));
+  products.sort((a, b) => (a.order || 0) - (b.order || 0));
+
+  for (let i = 0; i < products.length; i++) {
+    await updateDoc(doc(db, "products", products[i].id), { order: i });
+  }
 }
 
 /* ---------- PAGE CONTROLS ---------- */

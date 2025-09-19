@@ -15,7 +15,7 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 // Sabit admin bilgileri
-const ADMIN_USER = "admin";
+const ADMIN_USER = "vortex";
 const ADMIN_PASS = "1234";
 
 // Oturum kontrolü

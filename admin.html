@@ -1,25 +1,65 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Panel</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700&display=swap" rel="stylesheet">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>VORTEX — Admin</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
-<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 </head>
 <body>
-<h1>Admin Panel</h1>
 
-<form id="product-form">
-  <input type="text" id="prod-name" placeholder="Ürün Adı" required>
-  <input type="text" id="prod-img" placeholder="Ürün Foto URL" required>
-  <input type="text" id="prod-link" placeholder="Ürün Link" required>
-  <button type="submit">Ürün Ekle</button>
-</form>
+<video id="bg-video" autoplay muted loop playsinline>
+  <source src="video.mp4" type="video/mp4">
+</video>
 
-<h2>Ürünler</h2>
-<div id="product-list-admin" class="product-container"></div>
+<nav class="topnav">
+  <ul>
+    <li><a href="index.html">Anasayfa</a></li>
+  </ul>
+</nav>
+
+<main class="admin-main">
+  <section class="admin-panel">
+    <h1>Admin — Ürün Yönetimi</h1>
+
+    <form id="product-form" class="admin-form" autocomplete="off">
+      <div class="form-row">
+        <label>Ürün Adı</label>
+        <input id="prod-name" type="text" placeholder="Ürün adı" required />
+      </div>
+
+      <div class="form-row">
+        <label>Görsel URL</label>
+        <input id="prod-img" type="url" placeholder="https://..." required />
+      </div>
+
+      <div class="form-row">
+        <label>Satın Alma Linki</label>
+        <input id="prod-link" type="url" placeholder="https://..." required />
+      </div>
+
+      <div class="form-actions">
+        <button id="add-btn" type="submit" class="btn-primary">Ürünü Ekle</button>
+        <button id="clear-form" type="button" class="btn-ghost">Temizle</button>
+      </div>
+
+      <div class="preview">
+        <h3>Önizleme</h3>
+        <div id="preview-card" class="preview-card">
+          <img id="preview-img" src="" alt="Önizleme" />
+          <p id="preview-title">Ürün adı burada görünür</p>
+        </div>
+      </div>
+    </form>
+
+    <hr />
+
+    <h2>Mevcut Ürünler</h2>
+    <div id="product-list-admin" class="product-grid admin-grid" aria-live="polite"></div>
+  </section>
+</main>
 
 <script type="module" src="app.js"></script>
 </body>

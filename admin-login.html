@@ -1,45 +1,74 @@
 <!DOCTYPE html>
-<canvas id="stars"></canvas>
 <html lang="tr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Login</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel Giriş</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      font-family: Arial, sans-serif;
+      background: #0f0f0f;
+      color: #fff;
+      margin: 0;
+    }
+    #login-area, #admin-area {
+      background: rgba(255,255,255,0.1);
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+      box-shadow: 0 0 20px rgba(0,0,0,0.6);
+    }
+    input {
+      display: block;
+      margin: 10px auto;
+      padding: 10px;
+      width: 200px;
+      border: none;
+      border-radius: 5px;
+    }
+    button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      background: #4CAF50;
+      color: #fff;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #45a049;
+    }
+    #product-list-admin img {
+      display: block;
+      margin: 10px auto;
+    }
+  </style>
 </head>
 <body>
-<div id="bg-animation"></div>
+  <div id="login-area">
+    <h1>Admin Giriş</h1>
+    <form id="login-form">
+      <input type="text" id="username" placeholder="Kullanıcı Adı" required>
+      <input type="password" id="password" placeholder="Şifre" required>
+      <button type="submit">Giriş Yap</button>
+    </form>
+  </div>
 
-<div class="login-container">
-  <h1>Admin Panel Girişi</h1>
-  <form id="login-form">
-    <input type="text" id="username" placeholder="Kullanıcı Adı" required>
-    <input type="password" id="password" placeholder="Şifre" required>
-    <button type="submit">Giriş Yap</button>
-    <p id="login-msg"></p>
-  </form>
-</div>
+  <div id="admin-area" style="display:none;">
+    <h2>Ürün Yönetimi</h2>
+    <form id="product-form">
+      <input type="text" id="prod-name" placeholder="Ürün adı" required>
+      <input type="text" id="prod-img" placeholder="Ürün görsel URL" required>
+      <input type="text" id="prod-link" placeholder="Ürün linki" required>
+      <button type="submit">Ürün Ekle</button>
+    </form>
+    <div id="product-list-admin"></div>
+  </div>
 
-<script>
-const loginForm = document.getElementById('login-form');
-const loginMsg = document.getElementById('login-msg');
-
-// Örnek admin bilgisi
-const ADMIN_USER = "admin";
-const ADMIN_PASS = "12345";
-
-loginForm.addEventListener('submit', (e)=>{
-  e.preventDefault();
-  const user = document.getElementById('username').value;
-  const pass = document.getElementById('password').value;
-  if(user === ADMIN_USER && pass === ADMIN_PASS){
-    window.location.href = "admin.html";
-  } else {
-    loginMsg.textContent = "Kullanıcı adı veya şifre hatalı!";
-    loginMsg.style.color = "#ff00ff";
-  }
-});
-</script>
+  <script type="module" src="admin.js"></script>
 </body>
 </html>

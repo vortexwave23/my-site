@@ -15,48 +15,77 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 // Sabit admin bilgileri
-const ADMIN_USER = "admin";   // kullanıcı adı
-const ADMIN_PASS = "1234";    // şifre
+const ADMIN_USER = "admin";
+const ADMIN_PASS = "1234";
+
+// Oturum kontrolü
+function checkAuth() {
+  const isAuthenticated = localStorage.getItem("isAuthenticated") === "true";
+  if (!isAuthenticated && window.location.pathname.includes("admin.html")) {
+    window.location.href = "admin-login.html";
+  }
+}
+
+// Sayfada oturum kontrolü yap
+document.addEventListener("DOMContentLoaded", () => {
+  checkAuth();
+});
 
 // Giriş alanı
 const loginForm = document.getElementById("login-form");
 const loginArea = document.getElementById("login-area");
 const adminArea = document.getElementById("admin-area");
 
-loginForm.addEventListener("submit", (e)=>{
-  e.preventDefault();
-  const user = document.getElementById("username").value;
-  const pass = document.getElementById("password").value;
+if (loginForm) {
+  loginForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const user = document.getElementById("username").value;
+    const pass = document.getElementById("password").value;
 
-  if(user === ADMIN_USER && pass === ADMIN_PASS){
-    loginArea.style.display="none";
-    adminArea.style.display="block";
-    renderProductsAdmin();
-  }else{
-    alert("Kullanıcı adı veya şifre hatalı!");
-  }
-});
+    if (user === ADMIN_USER && pass === ADMIN_PASS) {
+      localStorage.setItem("isAuthenticated", "true");
+      loginArea.style.display = "none";
+      adminArea.style.display = "block";
+      renderProductsAdmin();
+      window.location.href = "admin.html";
+    } else {
+      alert("Kullanıcı adı veya şifre hatalı!");
+    }
+  });
+}
+
+// Çıkış yapma işlemi
+const logoutButton = document.getElementById("logout-button");
+if (logoutButton) {
+  logoutButton.addEventListener("click", () => {
+    localStorage.removeItem("isAuthenticated");
+    window.location.href = "admin-login.html";
+  });
+}
 
 // Ürün ekleme
 const form = document.getElementById("product-form");
-form.addEventListener("submit", async (e)=>{
-  e.preventDefault();
-  const name = document.getElementById("prod-name").value;
-  const img = document.getElementById("prod-img").value;
-  const link = document.getElementById("prod-link").value;
+if (form) {
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const name = document.getElementById("prod-name").value;
+    const img = document.getElementById("prod-img").value;
+    const link = document.getElementById("prod-link").value;
 
-  await addDoc(collection(db,"products"),{name,img,link});
-  alert("Ürün eklendi!");
-  form.reset();
-  renderProductsAdmin();
-});
+    await addDoc(collection(db, "products"), { name, img, link });
+    alert("Ürün eklendi!");
+    form.reset();
+    renderProductsAdmin();
+  });
+}
 
 // Ürün listeleme + silme
-async function renderProductsAdmin(){
+async function renderProductsAdmin() {
   const container = document.getElementById("product-list-admin");
-  container.innerHTML="";
-  const querySnapshot = await getDocs(collection(db,"products"));
-  querySnapshot.forEach(d=>{
+  if (!container) return;
+  container.innerHTML = "";
+  const querySnapshot = await getDocs(collection(db, "products"));
+  querySnapshot.forEach((d) => {
     const p = d.data();
     const div = document.createElement("div");
     div.innerHTML = `
@@ -65,8 +94,8 @@ async function renderProductsAdmin(){
       <a href="${p.link}" target="_blank">Git</a>
       <button data-id="${d.id}">Sil</button>
     `;
-    div.querySelector("button").addEventListener("click", async ()=>{
-      await deleteDoc(doc(db,"products",d.id));
+    div.querySelector("button").addEventListener("click", async () => {
+      await deleteDoc(doc(db, "products", d.id));
       renderProductsAdmin();
     });
     container.appendChild(div);

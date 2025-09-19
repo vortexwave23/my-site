@@ -1,66 +1,51 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>VORTEX — Admin</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin — Ürün Yönetimi</title>
+  <link rel="stylesheet" href="style.css">
+  <script type="module" src="admin.js"></script>
 </head>
 <body>
-
-<video id="bg-video" autoplay muted loop playsinline>
-  <source src="video.mp4" type="video/mp4">
-</video>
-
-<nav class="topnav">
-  <ul>
-    <li><a href="index.html">Anasayfa</a></li>
-  </ul>
-</nav>
-
-<main class="admin-main">
-  <section class="admin-panel">
-    <h1>Admin — Ürün Yönetimi</h1>
-
-    <form id="product-form" class="admin-form" autocomplete="off">
-      <div class="form-row">
-        <label>Ürün Adı</label>
-        <input id="prod-name" type="text" placeholder="Ürün adı" required />
-      </div>
-
-      <div class="form-row">
-        <label>Görsel URL</label>
-        <input id="prod-img" type="url" placeholder="https://..." required />
-      </div>
-
-      <div class="form-row">
-        <label>Satın Alma Linki</label>
-        <input id="prod-link" type="url" placeholder="https://..." required />
-      </div>
-
-      <div class="form-actions">
-        <button id="add-btn" type="submit" class="btn-primary">Ürünü Ekle</button>
-        <button id="clear-form" type="button" class="btn-ghost">Temizle</button>
-      </div>
-
-      <div class="preview">
-        <h3>Önizleme</h3>
-        <div id="preview-card" class="preview-card">
-          <img id="preview-img" src="" alt="Önizleme" />
-          <p id="preview-title">Ürün adı burada görünür</p>
+  <nav class="topnav">
+    <ul>
+      <li><a href="index.html">Anasayfa</a></li>
+      <li><a href="#" id="logout-button">Çıkış Yap</a></li>
+    </ul>
+  </nav>
+  <div class="admin-main">
+    <div class="admin-panel">
+      <h1>Admin — Ürün Yönetimi</h1>
+      <div class="admin-form">
+        <div class="form-row">
+          <label for="prod-name">Ürün Adı</label>
+          <input id="prod-name" type="text" required>
+        </div>
+        <div class="form-row">
+          <label for="prod-img">Görsel URL</label>
+          <input id="prod-img" type="url" required>
+        </div>
+        <div class="form-row">
+          <label for="prod-link">Satın Alma Linki</label>
+          <input id="prod-link" type="url">
+        </div>
+        <div class="form-actions">
+          <button class="btn-primary" type="submit" form="product-form">Ürünü Ekle</button>
+          <button class="btn-ghost" id="clear-form">Temizle</button>
+        </div>
+        <div class="preview">
+          <h3>Önizleme</h3>
+          <div class="preview-card">
+            <img id="preview-img" src="https://via.placeholder.com/300x200?text=Preview" alt="Önizleme">
+            <p id="preview-title">Ürün adı burada görünür</p>
+          </div>
         </div>
       </div>
-    </form>
-
-    <hr />
-
-    <h2>Mevcut Ürünler</h2>
-    <div id="product-list-admin" class="product-grid admin-grid" aria-live="polite"></div>
-  </section>
-</main>
-
-<script type="module" src="app.js"></script>
+      <h2>Mevcut Ürünler</h2>
+      <div class="admin-grid" id="product-list-admin"></div>
+    </div>
+  </div>
+  <form id="product-form" style="display:none"></form>
 </body>
 </html>

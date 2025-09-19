@@ -31,8 +31,8 @@ a{color:inherit;text-decoration:none}
 .products-section .products-header{display:flex;align-items:center;justify-content:space-between;max-width:1200px;margin:0 auto 8px;padding:0 12px}
 .products-section h2{margin:0;font-size:26px;color:var(--neon);text-shadow:0 0 8px var(--neon),0 0 20px var(--neon-2)}
 .pagination-controls{display:flex;align-items:center;gap:8px}
-.page-btn{background:transparent;border:1px solid rgba(255,255,255,0.06);color:#fff;padding:6px 10px;border-radius:8px;cursor:pointer}
-.page-btn:hover{background:rgba(255,255,255,0.02)}
+.page-btn{background:transparent;border:1px solid rgba(255,255,255,0.06);color:#ffffff2d;padding:6px 10px;border-radius:8px;cursor:pointer}
+.page-btn:hover{background:rgba(255, 255, 255, 0)}
 
 /* uniform product grid */
 .product-grid{max-width:1200px;margin:12px auto;display:grid;grid-template-columns:repeat(3,1fr);gap:22px;padding:12px;justify-items:center}
@@ -121,7 +121,7 @@ a{color:inherit;text-decoration:none}
 
 /* admin area */
 .admin-main{padding:90px 20px 60px;display:flex;justify-content:center}
-.admin-panel{max-width:1100px;width:100%;background:rgba(255, 255, 255, 0);padding:22px;border-radius:14px;box-shadow:0 10px 40px rgba(0,0,0,0.5)}
+.admin-panel{max-width:1100px;width:100%;background:rgba(255, 255, 255, 0);padding:22px;border-radius:14px;box-shadow:0 10px 40px rgba(0, 0, 0, 0.068)}
 .admin-panel h1{margin:0 0 14px;color:var(--neon)}
 .admin-form{display:grid;grid-template-columns:1fr 320px;gap:18px;align-items:start}
 .admin-form .form-row{display:flex;flex-direction:column;gap:8px}

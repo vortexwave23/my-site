@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBFWkamflwlXyiX8WXS8lf3hwri4y5Cmqw",
@@ -26,25 +26,14 @@ function checkAuth() {
   }
 }
 
-// Arka plan videosunu yükle
-async function loadBackgroundVideo() {
-  const video = document.getElementById("bg-video");
-  if (!video) return;
-  const docRef = doc(db, "settings", "backgroundVideo");
-  const docSnap = await getDoc(docRef);
-  if (docSnap.exists() && docSnap.data().url) {
-    video.src = docSnap.data().url;
-    video.play().catch(() => { /* ignore autoplay block */ });
-  } else {
-    video.src = ""; // Varsayılan olarak video yok
-  }
-}
-
 // Sayfada oturum kontrolü yap ve ürünleri yükle
 document.addEventListener("DOMContentLoaded", () => {
   checkAuth();
   renderProductsAdmin();
-  loadBackgroundVideo();
+  const video = document.getElementById("bg-video");
+  if (video) {
+    video.play().catch(() => { /* ignore autoplay block */ });
+  }
 });
 
 // Giriş alanı
@@ -75,38 +64,6 @@ if (logoutButton) {
   logoutButton.addEventListener("click", () => {
     localStorage.removeItem("isAuthenticated");
     window.location.href = "admin-login.html";
-  });
-}
-
-// Arka plan videosu ayarlama
-const videoForm = document.getElementById("set-video");
-const clearVideoButton = document.getElementById("clear-video");
-if (videoForm) {
-  const videoInput = document.getElementById("bg-video-url");
-  const previewVideo = document.getElementById("preview-video");
-
-  videoInput.addEventListener("input", () => {
-    previewVideo.src = videoInput.value || "";
-  });
-
-  videoForm.addEventListener("click", async () => {
-    const url = videoInput.value.trim();
-    if (!url) {
-      alert("Lütfen bir MP4 video URL’si girin!");
-      return;
-    }
-    await setDoc(doc(db, "settings", "backgroundVideo"), { url });
-    alert("Arka plan videosu ayarlandı!");
-    loadBackgroundVideo();
-    previewVideo.src = url;
-  });
-
-  clearVideoButton.addEventListener("click", async () => {
-    await setDoc(doc(db, "settings", "backgroundVideo"), { url: "" });
-    alert("Arka plan videosu kaldırıldı!");
-    document.getElementById("bg-video").src = "";
-    previewVideo.src = "";
-    videoInput.value = "";
   });
 }
 

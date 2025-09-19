@@ -1,11 +1,9 @@
-// app.js — tek dosya: index.html ve admin.html ile kullanılır
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import {
   getFirestore, collection, addDoc, getDocs,
   updateDoc, doc, deleteDoc, onSnapshot
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
-/* --------- firebaseConfig (senin verdiğin) --------- */
 const firebaseConfig = {
   apiKey: "AIzaSyBFWkamflwlXyiX8WXS8lf3hwri4y5Cmqw",
   authDomain: "data-85f1e.firebaseapp.com",
@@ -52,28 +50,47 @@ let currentPage = 1;
 let cachedProducts = []; // tüm ürünleri tutacağız
 
 async function fetchAllProducts(){
+  console.log("Fetching all products...");
   const snap = await getDocs(collection(db,'products'));
   const arr = [];
   snap.forEach(d => arr.push({id:d.id, ...d.data()}));
-  // en son eklenen üstte olsun:
   arr.sort((a,b)=> (a._ts||0) < (b._ts||0) ? 1:-1);
   cachedProducts = arr;
+  console.log("Total products fetched:", cachedProducts.length);
   renderProductsPage(currentPage);
   updatePageInfo();
 }
-function totalPages(){ return Math.max(1, Math.ceil(cachedProducts.length / PAGE_SIZE)); }
+
+function totalPages(){ 
+  const pages = Math.max(1, Math.ceil(cachedProducts.length / PAGE_SIZE));
+  console.log("Total pages calculated:", pages);
+  return pages;
+}
+
 function updatePageInfo(){
   const info = $('#page-info');
-  if(info) info.textContent = `${currentPage} / ${totalPages()}`;
-  $('#prev-page')?.setAttribute('disabled', currentPage<=1);
-  $('#next-page')?.setAttribute('disabled', currentPage>=totalPages());
+  if(info) {
+    info.textContent = `${currentPage} / ${totalPages()}`;
+    console.log("Page info updated:", info.textContent);
+  }
+  const prevButton = $('#prev-page');
+  const nextButton = $('#next-page');
+  if(prevButton) prevButton.disabled = currentPage <= 1;
+  if(nextButton) nextButton.disabled = currentPage >= totalPages();
+  console.log("Button states - Prev:", prevButton?.disabled, "Next:", nextButton?.disabled);
 }
+
 function renderProductsPage(page){
+  console.log("Rendering page:", page);
   const container = $('#product-list');
-  if(!container) return;
+  if(!container) {
+    console.log("Product list container not found");
+    return;
+  }
   container.innerHTML = '';
   const start = (page-1)*PAGE_SIZE;
   const pageItems = cachedProducts.slice(start, start+PAGE_SIZE);
+  console.log("Rendering items:", pageItems.length, "from index", start, "to", start+PAGE_SIZE);
   pageItems.forEach(p => {
     const a = document.createElement('a');
     a.href = p.link || '#';
@@ -110,16 +127,16 @@ if(form){
     const img = imgIn.value.trim();
     const link = linkIn.value.trim();
     if(!name || !img) return alert('Ad ve görsel gerekli.');
-    // ekle
     await addDoc(collection(db,'products'), { name, img, link, _ts: Date.now() });
     nameIn.value = imgIn.value = linkIn.value = '';
     previewImg.src = '';
-    renderProductsAdmin(); fetchAllProducts();
+    renderProductsAdmin(); 
+    fetchAllProducts();
   });
 
   $('#clear-form')?.addEventListener('click', ()=>{
     form.reset();
-    $('#preview-img').src='';
+    $('#preview-img').src='https://via.placeholder.com/300x200?text=Preview';
     $('#preview-title').textContent='Ürün adı burada görünür';
   });
 }
@@ -129,9 +146,7 @@ async function renderProductsAdmin(){
   const container = $('#product-list-admin');
   if(!container) return;
   container.innerHTML = '';
-  // snapshot yerine getDocs (basit)
   const snap = await getDocs(collection(db,'products'));
-  // sort by timestamp desc
   const arr = [];
   snap.forEach(d => arr.push({id:d.id,...d.data()}));
   arr.sort((a,b)=> (b._ts||0)-(a._ts||0));
@@ -145,7 +160,6 @@ async function renderProductsAdmin(){
         <button class="btn-buy" data-id="${p.id}" data-action="edit">Güncelle</button>
         <button style="background:#e74c3c" data-id="${p.id}" data-action="delete">Sil</button>
       </div>`;
-    // actions
     div.querySelector('[data-action="edit"]').addEventListener('click', async ()=>{
       const newName = prompt('Yeni isim:', p.name) || p.name;
       const newImg  = prompt('Yeni görsel URL:', p.img) || p.img;
@@ -169,10 +183,21 @@ function escapeHtml(s){
 
 /* ---------- PAGE CONTROLS ---------- */
 $('#prev-page')?.addEventListener('click', ()=>{
-  if(currentPage>1) currentPage--, renderProductsPage(currentPage), updatePageInfo();
+  if(currentPage > 1) {
+    currentPage--;
+    console.log("Navigating to previous page:", currentPage);
+    renderProductsPage(currentPage);
+    updatePageInfo();
+  }
 });
+
 $('#next-page')?.addEventListener('click', ()=>{
-  if(currentPage<totalPages()) currentPage++, renderProductsPage(currentPage), updatePageInfo();
+  if(currentPage < totalPages()) {
+    currentPage++;
+    console.log("Navigating to next page:", currentPage);
+    renderProductsPage(currentPage);
+    updatePageInfo();
+  }
 });
 
 /* ---------- initial fetch ---------- */

@@ -26,9 +26,10 @@ function checkAuth() {
   }
 }
 
-// Sayfada oturum kontrolü yap
+// Sayfada oturum kontrolü yap ve ürünleri yükle
 document.addEventListener("DOMContentLoaded", () => {
   checkAuth();
+  renderProductsAdmin(); // Sayfa yüklendiğinde ürünleri listele
 });
 
 // Giriş alanı
@@ -46,7 +47,6 @@ if (loginForm) {
       localStorage.setItem("isAuthenticated", "true");
       loginArea.style.display = "none";
       adminArea.style.display = "block";
-      renderProductsAdmin();
       window.location.href = "admin.html";
     } else {
       alert("Kullanıcı adı veya şifre hatalı!");
@@ -72,9 +72,11 @@ if (form) {
     const img = document.getElementById("prod-img").value;
     const link = document.getElementById("prod-link").value;
 
-    await addDoc(collection(db, "products"), { name, img, link });
+    await addDoc(collection(db, "products"), { name, img, link, _ts: Date.now() });
     alert("Ürün eklendi!");
     form.reset();
+    document.getElementById("preview-img").src = "https://via.placeholder.com/300x200?text=Preview";
+    document.getElementById("preview-title").textContent = "Ürün adı burada görünür";
     renderProductsAdmin();
   });
 }
@@ -85,17 +87,24 @@ async function renderProductsAdmin() {
   if (!container) return;
   container.innerHTML = "";
   const querySnapshot = await getDocs(collection(db, "products"));
-  querySnapshot.forEach((d) => {
-    const p = d.data();
+  const products = [];
+  querySnapshot.forEach((d) => products.push({ id: d.id, ...d.data() }));
+  products.sort((a, b) => (b._ts || 0) - (a._ts || 0)); // En son eklenen üstte
+
+  products.forEach((p) => {
     const div = document.createElement("div");
+    div.className = "product-card";
     div.innerHTML = `
-      <p>${p.name}</p>
-      <img src="${p.img}" alt="${p.name}" width="100">
-      <a href="${p.link}" target="_blank">Git</a>
-      <button data-id="${d.id}">Sil</button>
+      <div class="neon-border"></div>
+      <img src="${p.img}" alt="${p.name}" onerror="this.src='https://via.placeholder.com/300x200?text=No+Image'">
+      <div class="product-title">${p.name}</div>
+      <div class="buy">
+        <a href="${p.link}" target="_blank" class="btn-buy">Git</a>
+        <button class="btn-ghost" data-id="${p.id}">Sil</button>
+      </div>
     `;
     div.querySelector("button").addEventListener("click", async () => {
-      await deleteDoc(doc(db, "products", d.id));
+      await deleteDoc(doc(db, "products", p.id));
       renderProductsAdmin();
     });
     container.appendChild(div);

@@ -1,8 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import {
-  getFirestore, collection, addDoc, getDocs,
-  updateDoc, doc, deleteDoc, onSnapshot
-} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBFWkamflwlXyiX8WXS8lf3hwri4y5Cmqw",
@@ -13,171 +10,168 @@ const firebaseConfig = {
   appId: "1:258131108684:web:2b0c148b1610594d6da5e9",
   measurementId: "G-N9D14VVN4R"
 };
+
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-/* ---------- COMMON UTIL ---------- */
-function $(sel){return document.querySelector(sel)}
-function $all(sel){return Array.from(document.querySelectorAll(sel))}
+// Sabit admin bilgileri
+const ADMIN_USER = "admin";
+const ADMIN_PASS = "1234";
 
-/* ---------- SPARKLE CURSOR ---------- */
-(function sparkleCursor(){
-  const container = document.getElementById('sparkles-container');
-  if(!container) return;
-  const pool = [];
-  function make(){
-    const s = document.createElement('div');
-    s.className='sparkle';
-    container.appendChild(s);
-    pool.push(s);
-    return s;
+// Oturum kontrolü
+function checkAuth() {
+  const isAuthenticated = localStorage.getItem("isAuthenticated") === "true";
+  if (!isAuthenticated && window.location.pathname.includes("admin.html")) {
+    window.location.href = "admin-login.html";
   }
-  for(let i=0;i<10;i++) make();
-  let idx=0;
-  window.addEventListener('mousemove', (e)=>{
-    const s = pool[idx++ % pool.length];
-    s.style.left = e.clientX + 'px';
-    s.style.top  = e.clientY + 'px';
-    s.style.opacity = '1';
-    s.style.transform = 'translate(-50%,-50%) scale(1)';
-    setTimeout(()=>{ s.style.opacity='0'; s.style.transform='translate(-50%,-50%) scale(.6)'; }, 350);
-  });
-})();
-
-/* ---------- PAGINATION (guest) ---------- */
-const PAGE_SIZE = 9;
-let currentPage = 1;
-let cachedProducts = [];
-
-async function fetchAllProducts(){
-  console.log("Fetching all products...");
-  const snap = await getDocs(collection(db,'products'));
-  const arr = [];
-  snap.forEach(d => arr.push({id:d.id, ...d.data()}));
-  arr.sort((a,b) => (a.order || 0) - (b.order || 0)); // order alanına göre sırala
-  cachedProducts = arr;
-  console.log("Total products fetched:", cachedProducts.length);
-  renderProductsPage(currentPage);
-  updatePageInfo();
 }
 
-function totalPages(){ 
-  const pages = Math.max(1, Math.ceil(cachedProducts.length / PAGE_SIZE));
-  console.log("Total pages calculated:", pages);
-  return pages;
+// Arka plan videosunu yükle
+async function loadBackgroundVideo() {
+  const video = document.getElementById("bg-video");
+  if (!video) return;
+  const docRef = doc(db, "settings", "backgroundVideo");
+  const docSnap = await getDoc(docRef);
+  if (docSnap.exists() && docSnap.data().url) {
+    video.src = docSnap.data().url;
+    video.play().catch(() => { /* ignore autoplay block */ });
+  } else {
+    video.src = ""; // Varsayılan olarak video yok
+  }
 }
 
-function updatePageInfo(){
-  const info = $('#page-info');
-  if(info) {
-    info.textContent = `${currentPage} / ${totalPages()}`;
-    console.log("Page info updated:", info.textContent);
-  }
-  const prevButton = $('#prev-page');
-  const nextButton = $('#next-page');
-  if(prevButton) prevButton.disabled = currentPage <= 1;
-  if(nextButton) nextButton.disabled = currentPage >= totalPages();
-  console.log("Button states - Prev:", prevButton?.disabled, "Next:", nextButton?.disabled);
-}
+// Sayfada oturum kontrolü yap ve ürünleri yükle
+document.addEventListener("DOMContentLoaded", () => {
+  checkAuth();
+  renderProductsAdmin();
+  loadBackgroundVideo();
+});
 
-function renderProductsPage(page){
-  console.log("Rendering page:", page);
-  const container = $('#product-list');
-  if(!container) {
-    console.log("Product list container not found");
-    return;
-  }
-  container.innerHTML = '';
-  const start = (page-1)*PAGE_SIZE;
-  const pageItems = cachedProducts.slice(start, start+PAGE_SIZE);
-  console.log("Rendering items:", pageItems.length, "from index", start, "to", start+PAGE_SIZE);
-  pageItems.forEach(p => {
-    const a = document.createElement('a');
-    a.href = p.link || '#';
-    a.target = '_blank';
-    const card = document.createElement('div');
-    card.className = 'product-card';
-    card.innerHTML = `<div class="neon-border"></div>
-      <img src="${p.img}" alt="${escapeHtml(p.name)}" onerror="this.src='https://via.placeholder.com/300x200?text=No+Image'">
-      <div class="product-title">${escapeHtml(p.name)}</div>
-      <div class="buy"><button class="btn-buy">Satın Al</button></div>
-    `;
-    a.appendChild(card);
-    container.appendChild(a);
+// Giriş alanı
+const loginForm = document.getElementById("login-form");
+const loginArea = document.getElementById("login-area");
+const adminArea = document.getElementById("admin-area");
+
+if (loginForm) {
+  loginForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const user = document.getElementById("username").value;
+    const pass = document.getElementById("password").value;
+
+    if (user === ADMIN_USER && pass === ADMIN_PASS) {
+      localStorage.setItem("isAuthenticated", "true");
+      loginArea.style.display = "none";
+      adminArea.style.display = "block";
+      window.location.href = "admin.html";
+    } else {
+      alert("Kullanıcı adı veya şifre hatalı!");
+    }
   });
 }
 
-/* ---------- ADMIN UI ---------- */
-const form = $('#product-form');
-if(form){
-  const nameIn = $('#prod-name');
-  const imgIn  = $('#prod-img');
-  const linkIn = $('#prod-link');
-  const previewImg = $('#preview-img');
-  const previewTitle = $('#preview-title');
-  [nameIn,imgIn].forEach(i => i?.addEventListener('input', ()=>{
+// Çıkış yapma işlemi
+const logoutButton = document.getElementById("logout-button");
+if (logoutButton) {
+  logoutButton.addEventListener("click", () => {
+    localStorage.removeItem("isAuthenticated");
+    window.location.href = "admin-login.html";
+  });
+}
+
+// Arka plan videosu ayarlama
+const videoForm = document.getElementById("set-video");
+const clearVideoButton = document.getElementById("clear-video");
+if (videoForm) {
+  const videoInput = document.getElementById("bg-video-url");
+  const previewVideo = document.getElementById("preview-video");
+
+  videoInput.addEventListener("input", () => {
+    previewVideo.src = videoInput.value || "";
+  });
+
+  videoForm.addEventListener("click", async () => {
+    const url = videoInput.value.trim();
+    if (!url) {
+      alert("Lütfen bir MP4 video URL’si girin!");
+      return;
+    }
+    await setDoc(doc(db, "settings", "backgroundVideo"), { url });
+    alert("Arka plan videosu ayarlandı!");
+    loadBackgroundVideo();
+    previewVideo.src = url;
+  });
+
+  clearVideoButton.addEventListener("click", async () => {
+    await setDoc(doc(db, "settings", "backgroundVideo"), { url: "" });
+    alert("Arka plan videosu kaldırıldı!");
+    document.getElementById("bg-video").src = "";
+    previewVideo.src = "";
+    videoInput.value = "";
+  });
+}
+
+// Ürün ekleme
+const form = document.getElementById("product-form");
+if (form) {
+  const nameIn = document.getElementById("prod-name");
+  const imgIn = document.getElementById("prod-img");
+  const linkIn = document.getElementById("prod-link");
+  const previewImg = document.getElementById("preview-img");
+  const previewTitle = document.getElementById("preview-title");
+
+  [nameIn, imgIn].forEach(i => i?.addEventListener('input', () => {
     previewImg.src = imgIn.value || 'https://via.placeholder.com/300x200?text=Preview';
     previewTitle.textContent = nameIn.value || 'Ürün adı burada görünür';
   }));
 
-  form.addEventListener('submit', async (e)=>{
+  form.addEventListener("submit", async (e) => {
     e.preventDefault();
     const name = nameIn.value.trim();
     const img = imgIn.value.trim();
     const link = linkIn.value.trim();
-    if(!name || !img) return alert('Ad ve görsel gerekli.');
+
+    if (!name || !img) {
+      alert("Ürün adı ve görsel URL zorunludur!");
+      return;
+    }
+
     const snap = await getDocs(collection(db, "products"));
     const order = snap.size;
-    await addDoc(collection(db,'products'), { name, img, link, order, _ts: Date.now() });
-    nameIn.value = imgIn.value = linkIn.value = '';
-    previewImg.src = '';
-    renderProductsAdmin(); 
-    fetchAllProducts();
-  });
 
-  $('#clear-form')?.addEventListener('click', ()=>{
+    await addDoc(collection(db, "products"), { name, img, link, order, _ts: Date.now() });
+    alert("Ürün eklendi!");
     form.reset();
-    $('#preview-img').src='https://via.placeholder.com/300x200?text=Preview';
-    $('#preview-title').textContent='Ürün adı burada görünür';
+    previewImg.src = "https://via.placeholder.com/300x200?text=Preview";
+    previewTitle.textContent = "Ürün adı burada görünür";
+    renderProductsAdmin();
   });
 }
 
-/* ---------- ADMIN: listele/güncelle/sil (live snapshot ile) ---------- */
-async function renderProductsAdmin(){
-  const container = $('#product-list-admin');
-  if(!container) return;
-  container.innerHTML = '';
-  const snap = await getDocs(collection(db,'products'));
-  const arr = [];
-  snap.forEach(d => arr.push({id:d.id,...d.data()}));
-  arr.sort((a,b)=> (a.order || 0) - (b.order || 0));
-  arr.forEach(p=>{
-    const div = document.createElement('div');
-    div.className = 'product-card';
+// Ürün listeleme + silme + sürükle-bırak
+async function renderProductsAdmin() {
+  const container = document.getElementById("product-list-admin");
+  if (!container) return;
+  container.innerHTML = "";
+  const querySnapshot = await getDocs(collection(db, "products"));
+  const products = [];
+  querySnapshot.forEach((d) => products.push({ id: d.id, ...d.data() }));
+  products.sort((a, b) => (a.order || 0) - (b.order || 0));
+
+  products.forEach((p, index) => {
+    const div = document.createElement("div");
+    div.className = "product-card";
     div.setAttribute("draggable", "true");
     div.setAttribute("data-id", p.id);
-    div.innerHTML = `<div class="neon-border"></div>
-      <img src="${p.img}" alt="${escapeHtml(p.name)}" onerror="this.src='https://via.placeholder.com/300x200?text=No+Image'">
-      <div style="margin-top:8px;font-weight:700;color:var(--neon)">${escapeHtml(p.name)}</div>
-      <div style="margin-top:auto;display:flex;gap:8px;justify-content:center">
-        <button class="btn-buy" data-id="${p.id}" data-action="edit">Güncelle</button>
-        <button style="background:#e74c3c" data-id="${p.id}" data-action="delete">Sil</button>
-      </div>`;
-    div.querySelector('[data-action="edit"]').addEventListener('click', async ()=>{
-      const newName = prompt('Yeni isim:', p.name) || p.name;
-      const newImg  = prompt('Yeni görsel URL:', p.img) || p.img;
-      const newLink = prompt('Yeni link:', p.link) || p.link;
-      await updateDoc(doc(db,'products',p.id), { name:newName, img:newImg, link:newLink });
-      renderProductsAdmin(); fetchAllProducts();
-    });
-    div.querySelector('[data-action="delete"]').addEventListener('click', async ()=>{
-      if(!confirm('Silinsin mi?')) return;
-      await deleteDoc(doc(db,'products',p.id));
-      await updateProductOrders();
-      renderProductsAdmin(); fetchAllProducts();
-    });
+    div.innerHTML = `
+      <div class="neon-border"></div>
+      <img src="${p.img}" alt="${p.name}" onerror="this.src='https://via.placeholder.com/300x200?text=No+Image'">
+      <div class="product-title">${p.name}</div>
+      <div class="buy">
+        <a href="${p.link}" target="_blank" class="btn-buy">Git</a>
+        <button class="btn-ghost" data-id="${p.id}">Sil</button>
+      </div>
+    `;
 
-    // Sürükle-bırak olayları
     div.addEventListener("dragstart", (e) => {
       e.dataTransfer.setData("text/plain", p.id);
       div.classList.add("dragging");
@@ -198,19 +192,20 @@ async function renderProductsAdmin(){
       if (draggedId !== targetId) {
         await reorderProducts(draggedId, targetId);
         renderProductsAdmin();
-        fetchAllProducts();
       }
+    });
+
+    div.querySelector("button").addEventListener("click", async () => {
+      await deleteDoc(doc(db, "products", p.id));
+      await updateProductOrders();
+      renderProductsAdmin();
     });
 
     container.appendChild(div);
   });
 }
 
-/* ---------- HELPERS ---------- */
-function escapeHtml(s){
-  return String(s||'').replace(/[&<>"']/g, (m)=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));
-}
-
+// Ürün sıralamasını güncelleme
 async function reorderProducts(draggedId, targetId) {
   const snap = await getDocs(collection(db, "products"));
   const products = [];
@@ -228,6 +223,7 @@ async function reorderProducts(draggedId, targetId) {
   }
 }
 
+// Ürün silindikten sonra sıralamayı güncelle
 async function updateProductOrders() {
   const snap = await getDocs(collection(db, "products"));
   const products = [];
@@ -237,34 +233,4 @@ async function updateProductOrders() {
   for (let i = 0; i < products.length; i++) {
     await updateDoc(doc(db, "products", products[i].id), { order: i });
   }
-}
-
-/* ---------- PAGE CONTROLS ---------- */
-$('#prev-page')?.addEventListener('click', ()=>{
-  if(currentPage > 1) {
-    currentPage--;
-    console.log("Navigating to previous page:", currentPage);
-    renderProductsPage(currentPage);
-    updatePageInfo();
-  }
-});
-
-$('#next-page')?.addEventListener('click', ()=>{
-  if(currentPage < totalPages()) {
-    currentPage++;
-    console.log("Navigating to next page:", currentPage);
-    renderProductsPage(currentPage);
-    updatePageInfo();
-  }
-});
-
-/* ---------- initial fetch ---------- */
-fetchAllProducts();
-renderProductsAdmin();
-
-/* ---------- video autoplay safety ---------- */
-const video = document.getElementById('bg-video');
-if(video){
-  video.muted = true;
-  video.play().catch(()=>{ /* ignore autoplay block */ });
 }

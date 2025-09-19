@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBFWkamflwlXyiX8WXS8lf3hwri4y5Cmqw",
@@ -26,10 +26,25 @@ function checkAuth() {
   }
 }
 
+// Arka plan videosunu yükle
+async function loadBackgroundVideo() {
+  const video = document.getElementById("bg-video");
+  if (!video) return;
+  const docRef = doc(db, "settings", "backgroundVideo");
+  const docSnap = await getDoc(docRef);
+  if (docSnap.exists() && docSnap.data().url) {
+    video.src = docSnap.data().url;
+    video.play().catch(() => { /* ignore autoplay block */ });
+  } else {
+    video.src = ""; // Varsayılan olarak video yok
+  }
+}
+
 // Sayfada oturum kontrolü yap ve ürünleri yükle
 document.addEventListener("DOMContentLoaded", () => {
   checkAuth();
   renderProductsAdmin();
+  loadBackgroundVideo();
 });
 
 // Giriş alanı
@@ -63,6 +78,38 @@ if (logoutButton) {
   });
 }
 
+// Arka plan videosu ayarlama
+const videoForm = document.getElementById("set-video");
+const clearVideoButton = document.getElementById("clear-video");
+if (videoForm) {
+  const videoInput = document.getElementById("bg-video-url");
+  const previewVideo = document.getElementById("preview-video");
+
+  videoInput.addEventListener("input", () => {
+    previewVideo.src = videoInput.value || "";
+  });
+
+  videoForm.addEventListener("click", async () => {
+    const url = videoInput.value.trim();
+    if (!url) {
+      alert("Lütfen bir MP4 video URL’si girin!");
+      return;
+    }
+    await setDoc(doc(db, "settings", "backgroundVideo"), { url });
+    alert("Arka plan videosu ayarlandı!");
+    loadBackgroundVideo();
+    previewVideo.src = url;
+  });
+
+  clearVideoButton.addEventListener("click", async () => {
+    await setDoc(doc(db, "settings", "backgroundVideo"), { url: "" });
+    alert("Arka plan videosu kaldırıldı!");
+    document.getElementById("bg-video").src = "";
+    previewVideo.src = "";
+    videoInput.value = "";
+  });
+}
+
 // Ürün ekleme
 const form = document.getElementById("product-form");
 if (form) {
@@ -88,7 +135,6 @@ if (form) {
       return;
     }
 
-    // Varsayılan order değeri için mevcut ürün sayısını al
     const snap = await getDocs(collection(db, "products"));
     const order = snap.size;
 
@@ -109,7 +155,7 @@ async function renderProductsAdmin() {
   const querySnapshot = await getDocs(collection(db, "products"));
   const products = [];
   querySnapshot.forEach((d) => products.push({ id: d.id, ...d.data() }));
-  products.sort((a, b) => (a.order || 0) - (b.order || 0)); // order alanına göre sırala
+  products.sort((a, b) => (a.order || 0) - (b.order || 0));
 
   products.forEach((p, index) => {
     const div = document.createElement("div");
@@ -126,7 +172,6 @@ async function renderProductsAdmin() {
       </div>
     `;
 
-    // Sürükle-bırak olayları
     div.addEventListener("dragstart", (e) => {
       e.dataTransfer.setData("text/plain", p.id);
       div.classList.add("dragging");
@@ -152,7 +197,7 @@ async function renderProductsAdmin() {
 
     div.querySelector("button").addEventListener("click", async () => {
       await deleteDoc(doc(db, "products", p.id));
-      await updateProductOrders(); // Silme sonrası sıralamayı güncelle
+      await updateProductOrders();
       renderProductsAdmin();
     });
 
@@ -173,7 +218,6 @@ async function reorderProducts(draggedId, targetId) {
   const [draggedProduct] = products.splice(draggedIndex, 1);
   products.splice(targetIndex, 0, draggedProduct);
 
-  // Yeni sıralamayı Firestore’a kaydet
   for (let i = 0; i < products.length; i++) {
     await updateDoc(doc(db, "products", products[i].id), { order: i });
   }

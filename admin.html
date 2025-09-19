@@ -8,6 +8,8 @@
   <script type="module" src="admin.js"></script>
 </head>
 <body>
+  <video id="bg-video" autoplay loop muted playsinline></video>
+  <div id="sparkles-container"></div>
   <nav class="topnav">
     <ul>
       <li><a href="index.html">Anasayfa</a></li>
@@ -35,11 +37,27 @@
           <button class="btn-ghost" id="clear-form">Temizle</button>
         </div>
         <div class="preview">
-          <h3>Önizleme</h3>
+          <h3>Ürün Önizleme</h3>
           <div class="preview-card">
             <img id="preview-img" src="https://via.placeholder.com/300x200?text=Preview" alt="Önizleme">
             <p id="preview-title">Ürün adı burada görünür</p>
           </div>
+        </div>
+      </div>
+      <h2>Arka Plan Videosu</h2>
+      <div class="form-row">
+        <label for="bg-video-url">Arka Plan Video URL (MP4)</label>
+        <input id="bg-video-url" type="url" placeholder="Örn: https://example.com/video.mp4">
+        <div class="form-actions">
+          <button class="btn-primary" id="set-video">Videoyu Ayarla</button>
+          <button class="btn-ghost" id="clear-video">Videoyu Kaldır</button>
+        </div>
+        <div class="preview">
+          <h3>Video Önizleme</h3>
+          <video id="preview-video" width="260" height="150" controls>
+            <source src="" type="video/mp4">
+            Önizleme için video yüklenmedi.
+          </video>
         </div>
       </div>
       <h2>Mevcut Ürünler</h2>
